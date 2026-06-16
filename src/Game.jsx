@@ -34,7 +34,8 @@ export default function Game() {
   const [demo, setDemo] = useState(false); // local-mode demo reveal
   const [streak, setStreak] = useState(readStreak());
   const [copied, setCopied] = useState(false);
-  const [board, setBoard] = useState(SEED_BOARD);
+  // Live board comes from Supabase; the demo seed only shows in local mode.
+  const [board, setBoard] = useState(hasSupabase ? [] : SEED_BOARD);
   const [now, setNow] = useState(new Date());
 
   // Tick every 30s so races lock at their off time without a refresh.
@@ -49,7 +50,7 @@ export default function Game() {
       if (c && c.races?.length) { setRaces(c.races); setNap(c.nap); }
     });
     loadResults(day).then(setResults);
-    loadBoard().then((b) => { if (b && b.length) setBoard(b); });
+    loadBoard().then((b) => { if (b) setBoard(b); });
   }, [day]);
 
   const napRace = races.find((r) => r.id === nap.raceId);
@@ -241,6 +242,9 @@ export default function Game() {
         <div className="panel">
           <h3>🏆 Royal Ascot leaderboard</h3>
           <p className="lbnote">Top 3 over the festival split <b>£500</b> — £250 / £150 / £100.</p>
+          {board.length === 0 && (
+            <p className="lbnote" style={{ opacity: .85 }}>No scores yet. Lock your picks and be the first on the board.</p>
+          )}
           {board.map((row, i) => (
             <div className={`lbrow ${i < 3 ? "prize" : ""}`} key={(row.name || "p") + i}>
               <span>{i < 3 ? "🏆 " : ""}{i + 1}. {row.name}</span><span>{row.points}</span>
