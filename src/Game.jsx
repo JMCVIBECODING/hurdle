@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { hasSupabase } from "./lib/supabase";
-import { loadCard, loadResults, loadBoard, lockEntry } from "./lib/api";
+import { loadCard, loadResults, loadBoard, lockEntry, subscribeNewsletter } from "./lib/api";
 import { SAMPLE_RACES, SAMPLE_NAP, SEED_BOARD } from "./lib/sampleCard";
 import { todayDay, hasStarted } from "./lib/festival";
 
@@ -28,6 +28,7 @@ export default function Game() {
   const [nap, setNap] = useState(SAMPLE_NAP);
   const [picks, setPicks] = useState({});
   const [email, setEmail] = useState("");
+  const [optIn, setOptIn] = useState(false);
   const [locked, setLocked] = useState(false);
   const [lockMsg, setLockMsg] = useState("");
   const [results, setResults] = useState({});
@@ -72,6 +73,7 @@ export default function Game() {
     setLockMsg("Locking...");
     const res = await lockEntry(email, day, picks, races);
     if (!res.ok) { setLockMsg("Could not save, try again."); return; }
+    if (optIn) subscribeNewsletter(email);
     setLocked(true);
     setStreak(bumpStreak());
     setLockMsg(
@@ -139,6 +141,8 @@ export default function Game() {
         .gate p{margin:0 0 9px;font-size:12.5px;opacity:.85;line-height:1.4;}
         .ctaRow{display:flex;gap:7px;flex-wrap:wrap;}
         .gate input{flex:1;min-width:150px;padding:11px 13px;border-radius:9px;border:0;font-size:13px;}
+        .optin{display:flex;gap:8px;align-items:flex-start;margin-top:10px;font-size:11.5px;opacity:.8;line-height:1.4;cursor:pointer;}
+        .optin input{flex:0 0 auto;width:16px;height:16px;margin:1px 0 0;min-width:0;accent-color:var(--gold);cursor:pointer;}
         .btn{font-family:'Oswald';font-weight:600;text-transform:uppercase;letter-spacing:.05em;border:0;border-radius:10px;padding:12px 17px;font-size:13px;cursor:pointer;}
         .btn-gold{background:var(--gold);color:#1a1400;}
         .btn-gold:disabled{opacity:.4;cursor:not-allowed;}
@@ -209,6 +213,10 @@ export default function Game() {
               <input placeholder="you@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
               <button className="btn btn-gold" disabled={made < 1 || !email.includes("@")} onClick={lock}>Lock my picks</button>
             </div>
+            <label className="optin">
+              <input type="checkbox" checked={optIn} onChange={(e) => setOptIn(e.target.checked)} />
+              <span>Email me the daily NAP and updates. Optional, confirm by clicking the link we send. Unsubscribe anytime.</span>
+            </label>
             {lockMsg && <p style={{ margin: "9px 0 0", color: "var(--gold)" }}>{lockMsg}</p>}
           </div>
         )}

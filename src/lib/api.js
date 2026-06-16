@@ -62,3 +62,16 @@ export async function lockEntry(email, day, picks, races) {
   if (error) return { ok: false, error: error.message };
   return { ok: true, stored: rows.length };
 }
+
+// Optional newsletter opt-in. Posts to the Vercel function, which forces Beehiiv
+// double opt-in. Fire-and-forget: never blocks or fails the lock (and 404s
+// harmlessly in local dev where serverless functions don't run).
+export async function subscribeNewsletter(email) {
+  try {
+    await fetch("/api/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+  } catch { /* ignore */ }
+}
