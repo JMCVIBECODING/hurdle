@@ -129,15 +129,15 @@ returns int language sql security definer set search_path = public stable as $$
 $$;
 grant execute on function public.player_count() to anon, authenticated;
 
--- Confirm a player's email (makes them prize-eligible).
+-- Confirm a player's email (makes them prize-eligible). Returns their codename.
 create or replace function public.verify_email(p_token text)
-returns boolean language plpgsql security definer set search_path = public as $$
-declare n int;
+returns text language plpgsql security definer set search_path = public as $$
+declare v_name text;
 begin
-  if p_token is null then return false; end if;
-  update players set verified = true where verify_token = p_token;
-  get diagnostics n = row_count;
-  return n > 0;
+  if p_token is null then return null; end if;
+  update players set verified = true where verify_token = p_token
+    returning name into v_name;
+  return v_name;
 end; $$;
 revoke all on function public.verify_email(text) from public;
 grant execute on function public.verify_email(text) to anon, authenticated;
