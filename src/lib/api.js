@@ -84,6 +84,13 @@ export async function lockEntry(email, day, picks, races) {
   return { ok: true, stored: rows.length, verified };
 }
 
+// Live player count for social proof (real, via SECURITY DEFINER count fn).
+export async function loadPlayerCount() {
+  if (!hasSupabase) return 0;
+  const { data, error } = await supabase.rpc("player_count");
+  return error ? 0 : (data || 0);
+}
+
 // Optional newsletter opt-in. Posts to the Vercel function, which forces Beehiiv
 // double opt-in. Fire-and-forget: never blocks or fails the lock (and 404s
 // harmlessly in local dev where serverless functions don't run).

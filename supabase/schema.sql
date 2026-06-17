@@ -105,6 +105,13 @@ end; $$;
 revoke all on function public.lock_entry(text, jsonb) from public;
 grant execute on function public.lock_entry(text, jsonb) to anon, authenticated;
 
+-- Public live player count for social proof.
+create or replace function public.player_count()
+returns int language sql security definer set search_path = public stable as $$
+  select count(*)::int from players;
+$$;
+grant execute on function public.player_count() to anon, authenticated;
+
 -- Confirm a player's email (makes them prize-eligible).
 create or replace function public.verify_email(p_token text)
 returns boolean language plpgsql security definer set search_path = public as $$

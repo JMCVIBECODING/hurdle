@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { hasSupabase } from "./lib/supabase";
-import { loadCard, loadResults, loadBoard, lockEntry, subscribeNewsletter, pickPoints } from "./lib/api";
+import { loadCard, loadResults, loadBoard, lockEntry, subscribeNewsletter, pickPoints, loadPlayerCount } from "./lib/api";
 import { SAMPLE_RACES, SAMPLE_NAP, SEED_BOARD } from "./lib/sampleCard";
 import { todayDay, hasStarted } from "./lib/festival";
 import { trackBoth } from "./lib/analytics";
@@ -23,6 +23,7 @@ export default function Game() {
   const [busy, setBusy] = useState(false);
   const [showBoard, setShowBoard] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [playerCount, setPlayerCount] = useState(0);
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 30000);
@@ -34,6 +35,7 @@ export default function Game() {
     loadCard(day).then((c) => { if (c && c.races?.length) { setRaces(c.races); setNap(c.nap); } });
     loadResults(day).then(setResults);
     loadBoard().then((b) => { if (b && b.length) setBoard(b); });
+    loadPlayerCount().then(setPlayerCount);
   }, [day]);
 
   // Only races that haven't started are pickable in the funnel.
@@ -137,6 +139,8 @@ export default function Game() {
         .ghost{background:none;border:0;color:var(--cream);opacity:.6;font-size:13px;cursor:pointer;padding:12px;width:100%;margin-top:6px;}
         .trust{font-size:11px;opacity:.5;text-align:center;margin:16px 0 0;line-height:1.5;}
         .lockline{text-align:center;font-size:12px;color:var(--gold);margin:10px 0 0;font-family:'Oswald';letter-spacing:.03em;}
+        .social{display:flex;align-items:center;justify-content:center;gap:7px;font-size:12.5px;opacity:.85;margin:0 0 11px;}
+        .social .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(34,192,138,.2);}
         .sec{border-top:1px solid var(--line);margin-top:26px;padding-top:22px;}
         .sech{font-family:'Oswald';font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:15px;margin:0 0 10px;}
         .secp{font-size:14px;line-height:1.55;opacity:.85;margin:0 0 14px;}
@@ -219,6 +223,7 @@ export default function Game() {
               </>
             ) : (
               <>
+                {playerCount >= 10 && <p className="social"><span className="dot" />{Math.floor(playerCount / 10) * 10}+ players already picking</p>}
                 <button className="cta" onClick={() => setStep(0)}>Start picking →</button>
                 {firstLock && <p className="lockline">Today's card locks at {firstLock}</p>}
               </>
@@ -239,7 +244,7 @@ export default function Game() {
             </div>
             <div className="sec">
               <p className="sech">Play with your mates <span className="soon">soon</span></p>
-              <p className="secp">Private leagues drop this week — create one, share the code, and settle who actually knows their racing. Lock your entry now to be first in.</p>
+              <p className="secp">Private leagues are coming — create one, share the code, and settle who actually knows their racing. Lock your entry now to be first in line.</p>
             </div>
             <div className="sec hro">
               <p className="sech">Want the inside track?</p>
