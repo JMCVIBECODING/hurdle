@@ -66,11 +66,12 @@ export default function Game() {
 
   const shareText = useMemo(() => {
     const grid = races.map((r) => (results[r.id] && picks[r.id] === results[r.id]) ? "🟩" : "⬛").join("");
-    return `THE ASCOT SEVEN 🏇\nMe ${youHits}/7\n${grid}\n${napStarted && napName ? `🤖 HRO's NAP: ${napWon ? "✅ landed" : "❌"}` : ""}\nplay → hurdlegame.app`;
+    const napLine = napStarted && napName ? `\n🤖 HRO's NAP: ${napWon ? "✅ landed" : "❌"}` : "";
+    return `THE ASCOT SEVEN 🏇 by Horse Racing Oracle\nMe ${youHits}/7\n${grid}${napLine}\n\nFree to play, top 3 split £500 → https://hurdlegame.app`;
   }, [races, results, picks, youHits, napStarted, napName, napWon]);
   async function copyShare() {
     if (navigator.share) {
-      try { await navigator.share({ title: "The Ascot Seven", text: shareText }); return; } catch { /* cancelled or unsupported */ }
+      try { await navigator.share({ title: "The Ascot Seven", text: shareText, url: "https://hurdlegame.app" }); return; } catch { /* cancelled or unsupported */ }
     }
     try {
       await navigator.clipboard.writeText(shareText);
