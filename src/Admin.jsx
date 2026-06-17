@@ -46,6 +46,10 @@ export default function Admin() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  // Once logged in, auto-load today's saved card so the Results dropdowns show
+  // the real runners (not the sample template).
+  useEffect(() => { if (session && hasSupabase) loadDay(); /* eslint-disable-next-line */ }, [session]);
+
   async function login(e) {
     e.preventDefault();
     setLoginErr("");

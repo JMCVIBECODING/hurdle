@@ -20,6 +20,7 @@ export default function Game() {
   const [optIn, setOptIn] = useState(false);
   const [locked, setLocked] = useState(false);
   const [verified, setVerified] = useState(false);
+  const [myName, setMyName] = useState("");
   const [busy, setBusy] = useState(false);
   const [showBoard, setShowBoard] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -68,6 +69,7 @@ export default function Game() {
     trackBoth("Lead", { email, content_name: "ascot_seven_entry" });
     if (optIn) trackBoth("CompleteRegistration", { email, content_name: "newsletter" });
     setVerified(res.verified);
+    setMyName(res.name || "");
     setLocked(true);
     setStep("done");
   }
@@ -193,6 +195,10 @@ export default function Game() {
         .lr{display:flex;justify-content:space-between;font-size:14px;padding:9px 0;border-bottom:1px solid var(--line);}
         .lr:last-child{border:0;}
         .lr.top span:first-child{color:var(--gold);font-weight:600;}
+        .lr.mine{background:rgba(242,183,5,.1);margin:0 -8px;padding-left:8px;padding-right:8px;border-radius:8px;}
+        .lr.mine span{color:var(--gold);font-weight:700;}
+        .youare{font-size:13px;opacity:.9;margin:-6px 0 14px;}
+        .youare b{color:var(--gold);}
         .foot{text-align:center;font-size:10.5px;opacity:.45;padding:18px;line-height:1.6;max-width:480px;margin:0 auto;}
         .foot a{color:inherit;}
         @media(max-width:380px){.huge{font-size:52px}.qname{font-size:23px}}
@@ -305,6 +311,7 @@ export default function Game() {
               <>
                 <div className="tick">✓</div>
                 <h2 className="h1">You're in.</h2>
+                {myName && <p className="youare">You're on the board as <b>{myName}</b></p>}
                 <p className="lead">
                   {made} pick{made !== 1 ? "s" : ""} locked for today.{" "}
                   {settled ? `You've scored ${youPoints} point${youPoints !== 1 ? "s" : ""} so far.` : "Your picks score on how right your call was — 5 for nailing it, 3 for nearly, 1 for close."}
@@ -341,7 +348,7 @@ export default function Game() {
                 <BoardList board={board} />
               </>
             )}
-            {locked && showBoard && <div style={{ marginTop: 16 }}><BoardList board={board} you={settled ? youPoints : null} /></div>}
+            {locked && showBoard && <div style={{ marginTop: 16 }}><BoardList board={board} me={myName} you={settled ? youPoints : null} /></div>}
           </div>
         )}
       </div>
@@ -356,18 +363,19 @@ export default function Game() {
   );
 }
 
-function BoardList({ board, you }) {
+function BoardList({ board, you, me }) {
+  const onBoard = me && board.some((r) => r.name === me);
   return (
     <div className="board">
       <h3>🏆 Festival leaderboard</h3>
       <p className="note">Top 3 split £500 — £250 / £150 / £100.</p>
       {board.length === 0 && <p className="note">No scores yet. Be the first on the board.</p>}
       {board.map((row, i) => (
-        <div className={`lr ${i < 3 ? "top" : ""}`} key={(row.name || "p") + i}>
-          <span>{i < 3 ? "🏆 " : ""}{i + 1}. {row.name}</span><span>{row.points}</span>
+        <div className={`lr ${i < 3 ? "top" : ""} ${row.name === me ? "mine" : ""}`} key={(row.name || "p") + i}>
+          <span>{i < 3 ? "🏆 " : ""}{i + 1}. {row.name}{row.name === me ? " (you)" : ""}</span><span>{row.points}</span>
         </div>
       ))}
-      {you != null && <div className="lr top"><span>— You</span><span>{you}</span></div>}
+      {you != null && !onBoard && <div className="lr mine"><span>— You{me ? ` (${me})` : ""}</span><span>{you}</span></div>}
     </div>
   );
 }

@@ -93,12 +93,12 @@ $$;
 -- Returns { token, verified } so the app can email an unconfirmed player.
 create or replace function public.lock_entry(p_email text, p_picks jsonb)
 returns jsonb language plpgsql security definer set search_path = public as $$
-declare rec jsonb; v_token text; v_verified boolean;
+declare rec jsonb; v_token text; v_verified boolean; v_name text;
 begin
   insert into players (email, name, verify_token, verified)
   values (p_email, public.gen_codename(), gen_random_uuid()::text, false)
   on conflict (email) do update set email = excluded.email   -- keep existing codename/token/verified
-  returning verify_token, verified into v_token, v_verified;
+  returning verify_token, verified, name into v_token, v_verified, v_name;
 
   for rec in select * from jsonb_array_elements(coalesce(p_picks, '[]'::jsonb))
   loop
@@ -108,7 +108,7 @@ begin
       do update set runner_id = excluded.runner_id, locked_at = now();
   end loop;
 
-  return jsonb_build_object('token', v_token, 'verified', coalesce(v_verified, false));
+  return jsonb_build_object('token', v_token, 'verified', coalesce(v_verified, false), 'name', v_name);
 end; $$;
 revoke all on function public.lock_entry(text, jsonb) from public;
 grant execute on function public.lock_entry(text, jsonb) to anon, authenticated;

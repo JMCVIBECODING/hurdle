@@ -81,7 +81,7 @@ export async function lockEntry(email, day, picks, races) {
       });
     } catch { /* ignore */ }
   }
-  return { ok: true, stored: rows.length, verified };
+  return { ok: true, stored: rows.length, verified, name: data?.name || "" };
 }
 
 // Live player count for social proof (real, via SECURITY DEFINER count fn).
