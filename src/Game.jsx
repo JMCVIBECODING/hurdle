@@ -11,7 +11,7 @@ export default function Game() {
   const [races, setRaces] = useState(SAMPLE_RACES);
   const [nap, setNap] = useState(SAMPLE_NAP);
   const [results, setResults] = useState({});
-  const [board, setBoard] = useState(SEED_BOARD);
+  const [board, setBoard] = useState(hasSupabase ? [] : SEED_BOARD);
   const [now, setNow] = useState(new Date());
 
   const [step, setStep] = useState("intro");   // 'intro' | race index | 'email' | 'done'
