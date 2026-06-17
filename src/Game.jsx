@@ -181,9 +181,9 @@ export default function Game() {
         {/* INTRO */}
         {step === "intro" && (
           <div className="screen">
-            <p className="kick">Royal Ascot · 16–20 June · Free</p>
-            <h1 className="huge">Pick 7.<br />Win <span className="u">£500</span>.</h1>
-            <p className="lead" style={{ marginTop: 16 }}>Call the winner of today's <b>7 races</b>. Top 3 on the festival leaderboard split <b>£500</b>. One pick is HRO's <b>AI NAP</b>, revealed after racing. No betting, just bragging rights.</p>
+            <p className="kick">Royal Ascot · 16–20 June · Free to play</p>
+            <h1 className="huge">Pick 7.<br />Top the <span className="u">board</span>.</h1>
+            <p className="lead" style={{ marginTop: 16 }}>A free prediction game for Royal Ascot. You don't need all 7 — every correct winner scores, points build all week, and the <b>top 3 each win cash</b> (£250 / £150 / £100). One pick is HRO's <b>AI NAP</b>. No betting, just bragging rights.</p>
             <div className="stats">
               <div><b>£500</b><span>Prize pool</span></div>
               <div><b>7</b><span>Races today</span></div>
@@ -268,9 +268,9 @@ export default function Game() {
                 </div>
 
                 <div className="upsell">
-                  <p className="ut">Want tomorrow's <b>NAP before it runs</b>?</p>
-                  <p className="ud">Horse Racing Oracle's AI tips, every day of the festival. 60% win rate, 83% place rate on daily NAPs.</p>
-                  <a className="cta" href="https://horseracingoracleai.com/" target="_blank" rel="noopener">Get daily AI tips · £1.99 →</a>
+                  <p className="ut">Want a <b>winner every day</b>?</p>
+                  <p className="ud">Horse Racing Oracle's AI gives you a free pick daily — 71% win, 89% place. Premium tips come with a 14-day money-back guarantee: no winning tip in 14 days, your money back.</p>
+                  <a className="cta" href="https://horseracingoracleai.com/" target="_blank" rel="noopener">Get today's free pick →</a>
                 </div>
 
                 <button className="ghost" onClick={() => setShowBoard((s) => !s)}>{showBoard ? "Hide leaderboard" : "View leaderboard"}</button>
