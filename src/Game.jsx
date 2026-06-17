@@ -38,6 +38,9 @@ export default function Game() {
   // Live board comes from Supabase; the demo seed only shows in local mode.
   const [board, setBoard] = useState(hasSupabase ? [] : SEED_BOARD);
   const [now, setNow] = useState(new Date());
+  const [joinEmail, setJoinEmail] = useState("");
+  const [joinMsg, setJoinMsg] = useState("");
+  const [joining, setJoining] = useState(false);
 
   // Tick every 30s so races lock at their off time without a refresh.
   useEffect(() => {
@@ -107,6 +110,20 @@ export default function Game() {
     navigator.clipboard?.writeText(shareText).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1600); });
   }
 
+  async function joinNewsletter() {
+    if (!joinEmail.includes("@")) return;
+    setJoining(true);
+    await subscribeNewsletter(joinEmail);
+    setJoining(false);
+    setJoinEmail("");
+    setJoinMsg("Check your inbox and click the link to confirm. See you on the board.");
+  }
+
+  // Scroll the racecard into view from the hero CTA.
+  function scrollToCard() {
+    document.getElementById("card")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   return (
     <div className="root">
       <style>{`
@@ -123,6 +140,15 @@ export default function Game() {
         .pill{font-family:'Oswald';font-size:12px;letter-spacing:.04em;background:rgba(242,183,5,.16);color:var(--gold);padding:5px 9px;border-radius:20px;}
         .sub{font-size:12px;opacity:.72;margin:7px 0 15px;line-height:1.4;}
         .sub b{color:var(--gold);}
+        .hero{background:linear-gradient(135deg,#11362a,#0c2a22);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;}
+        .herostats{display:flex;gap:8px;margin-bottom:13px;}
+        .herostats div{flex:1;text-align:center;background:rgba(244,236,216,.05);border:1px solid var(--line);border-radius:10px;padding:9px 4px;}
+        .herostats b{display:block;font-family:'Oswald';font-size:21px;color:var(--gold);line-height:1;}
+        .herostats span{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;opacity:.6;margin-top:4px;}
+        .herolead{font-size:13px;line-height:1.45;margin:0 0 10px;}
+        .herolead b{color:var(--gold);}
+        .herofine{font-size:10.5px;opacity:.6;margin:8px 0 0;line-height:1.4;}
+        .herabtn{width:100%;margin-top:12px;}
         .race{background:rgba(244,236,216,.05);border:1px solid var(--line);border-radius:13px;padding:12px;margin-bottom:9px;}
         .race.off{opacity:.7;}
         .rhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px;}
@@ -176,6 +202,28 @@ export default function Game() {
         </div>
         <p className="sub">Pick the winner of as many of today's <b>7 races</b> as you like — every pick is a shot at points. Climb the <b>Royal Ascot leaderboard</b>; top 3 over the festival split <b>£500</b>. One runner is HRO's <b>AI-verified NAP</b>, revealed after racing. No betting. Just bragging rights.</p>
 
+        <div className="hero">
+          <div className="herostats">
+            <div><b>£500</b><span>Prize pool</span></div>
+            <div><b>7</b><span>Races a day</span></div>
+            <div><b>Free</b><span>To enter</span></div>
+          </div>
+          {!joinMsg ? (
+            <>
+              <p className="herolead">Get the daily <b>NAP</b> and your spot on the leaderboard. One email a day, festival week only.</p>
+              <div className="ctaRow">
+                <input placeholder="you@email.com" value={joinEmail} onChange={(e) => setJoinEmail(e.target.value)} />
+                <button className="btn btn-gold" disabled={joining || !joinEmail.includes("@")} onClick={joinNewsletter}>{joining ? "..." : "Get the daily NAP"}</button>
+              </div>
+              <p className="herofine">Free. Confirm by clicking the link we email you. Unsubscribe anytime. No betting.</p>
+            </>
+          ) : (
+            <p className="herolead" style={{ margin: 0 }}>{joinMsg}</p>
+          )}
+          <button className="btn btn-ghost herabtn" onClick={scrollToCard}>Play today's card ↓</button>
+        </div>
+
+        <div id="card" />
         {races.map((r, i) => {
           const off = hasStarted(day, r.time, now);
           const showNapBadge = r.id === nap.raceId && napStarted;

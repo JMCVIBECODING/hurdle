@@ -68,10 +68,13 @@ export async function lockEntry(email, day, picks, races) {
 // harmlessly in local dev where serverless functions don't run).
 export async function subscribeNewsletter(email) {
   try {
-    await fetch("/api/subscribe", {
+    const r = await fetch("/api/subscribe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
     });
-  } catch { /* ignore */ }
+    return await r.json().catch(() => ({ ok: r.ok }));
+  } catch {
+    return { ok: false };
+  }
 }
