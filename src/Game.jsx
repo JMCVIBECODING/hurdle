@@ -102,7 +102,7 @@ export default function Game() {
     }
   }
 
-  const pct = step === "intro" ? 0 : step === "email" || step === "done" ? 100 : Math.round(((step) / (openRaces.length + 1)) * 100);
+  const pct = step === "intro" ? 0 : step === "email" || step === "done" ? 100 : Math.round(((step + 1) / (openRaces.length + 1)) * 100);
 
   return (
     <div className="afn">
@@ -113,7 +113,7 @@ export default function Game() {
           background:radial-gradient(130% 80% at 50% -20%,var(--bg2),var(--bg));display:flex;flex-direction:column;}
         .afn *{box-sizing:border-box;}
         .afn button{font-family:inherit;}
-        .bar{height:3px;background:rgba(244,236,216,.1);}
+        .bar{height:5px;background:rgba(244,236,216,.1);}
         .bar i{display:block;height:100%;background:var(--gold);transition:width .4s cubic-bezier(.4,0,.2,1);}
         .nav{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;max-width:480px;margin:0 auto;width:100%;}
         .brand{font-family:'Oswald';font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:16px;}
@@ -234,7 +234,7 @@ export default function Game() {
               <p className="sech">How it works</p>
               <ol className="steps">
                 <li><b>Pick your winners</b> — one tap per race. Lock in before the off.</li>
-                <li><b>Score points</b> — the better your horse runs, the more you bank.</li>
+                <li><b>Score by how right you were</b> — nail the winner for 5, nearly there for 3, close for 1.</li>
                 <li><b>Climb the board</b> — top the festival leaderboard, all week.</li>
               </ol>
             </div>
@@ -269,7 +269,7 @@ export default function Game() {
               <div className="opts">
                 {r.runners.map((run, i) => (
                   <button key={run.id} className={`opt ${picks[r.id] === run.id ? "on" : ""}`} onClick={() => pick(r.id, run.id, step)}>
-                    <span className="dot">{i + 1}</span>{run.name}
+                    <span className="dot">{picks[r.id] === run.id ? "✓" : i + 1}</span>{run.name}
                   </button>
                 ))}
               </div>
@@ -307,7 +307,7 @@ export default function Game() {
                 <h2 className="h1">You're in.</h2>
                 <p className="lead">
                   {made} pick{made !== 1 ? "s" : ""} locked for today.{" "}
-                  {settled ? `You've scored ${youPoints} point${youPoints !== 1 ? "s" : ""} so far.` : "Your picks score as each race runs — 5 for a win, 3 for second, 1 for third."}
+                  {settled ? `You've scored ${youPoints} point${youPoints !== 1 ? "s" : ""} so far.` : "Your picks score on how right your call was — 5 for nailing it, 3 for nearly, 1 for close."}
                 </p>
                 {!verified && (
                   <p className="confirm">📧 Check your email and tap the link to <b>confirm your entry</b> — only confirmed players are eligible for the £500.</p>
