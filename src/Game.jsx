@@ -68,7 +68,21 @@ export default function Game() {
     const grid = races.map((r) => (results[r.id] && picks[r.id] === results[r.id]) ? "🟩" : "⬛").join("");
     return `THE ASCOT SEVEN 🏇\nMe ${youHits}/7\n${grid}\n${napStarted && napName ? `🤖 HRO's NAP: ${napWon ? "✅ landed" : "❌"}` : ""}\nplay → hurdlegame.app`;
   }, [races, results, picks, youHits, napStarted, napName, napWon]);
-  function copyShare() { navigator.clipboard?.writeText(shareText).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1600); }); }
+  async function copyShare() {
+    if (navigator.share) {
+      try { await navigator.share({ title: "The Ascot Seven", text: shareText }); return; } catch { /* cancelled or unsupported */ }
+    }
+    try {
+      await navigator.clipboard.writeText(shareText);
+      setCopied(true); setTimeout(() => setCopied(false), 1600);
+    } catch {
+      // last resort: select-and-copy via a temp textarea
+      const ta = document.createElement("textarea");
+      ta.value = shareText; document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); setCopied(true); setTimeout(() => setCopied(false), 1600); } catch { /* noop */ }
+      ta.remove();
+    }
+  }
 
   const pct = step === "intro" ? 0 : step === "email" || step === "done" ? 100 : Math.round(((step) / (openRaces.length + 1)) * 100);
 
