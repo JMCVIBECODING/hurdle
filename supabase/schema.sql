@@ -105,6 +105,15 @@ end; $$;
 revoke all on function public.lock_entry(text, jsonb) from public;
 grant execute on function public.lock_entry(text, jsonb) to anon, authenticated;
 
+-- Admin-only: list unverified players (email + token) to re-send confirm links.
+create or replace function public.pending_confirmations()
+returns table(email text, token text)
+language sql security definer set search_path = public stable as $$
+  select email, verify_token from players where verified = false and verify_token is not null;
+$$;
+revoke all on function public.pending_confirmations() from public, anon;
+grant execute on function public.pending_confirmations() to authenticated;
+
 -- Public live player count for social proof.
 create or replace function public.player_count()
 returns int language sql security definer set search_path = public stable as $$

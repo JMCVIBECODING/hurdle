@@ -19,6 +19,25 @@ export default function Admin() {
   const [napRunnerId, setNapRunnerId] = useState(SAMPLE_NAP.runnerId);
   const [winners, setWinners] = useState({}); // raceId -> runnerId
   const [msg, setMsg] = useState("");
+  const [confMsg, setConfMsg] = useState("");
+
+  async function sendConfirmations() {
+    setConfMsg("Loading unverified players…");
+    const { data, error } = await supabase.rpc("pending_confirmations");
+    if (error) { setConfMsg("Error: " + error.message); return; }
+    if (!data || !data.length) { setConfMsg("No unverified players to email."); return; }
+    let sent = 0, failed = 0;
+    for (const row of data) {
+      try {
+        const r = await fetch("/api/send-verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: row.email, token: row.token }) });
+        const j = await r.json().catch(() => ({}));
+        j.ok ? sent++ : failed++;
+      } catch { failed++; }
+      setConfMsg(`Sending… ${sent} sent${failed ? `, ${failed} failed` : ""}`);
+      await new Promise((res) => setTimeout(res, 600));
+    }
+    setConfMsg(`Done — ${sent} confirmation email(s) sent${failed ? `, ${failed} failed (check Resend is Verified)` : ""}.`);
+  }
 
   useEffect(() => {
     if (!hasSupabase) { setAuthReady(true); return; }
@@ -174,6 +193,13 @@ export default function Admin() {
           );
         })}
         {card.length > 0 && <div style={{ marginTop: 12 }}><button style={S.btn} onClick={saveResults}>Save results</button></div>}
+      </div>
+
+      <div style={S.card}>
+        <h2 style={{ ...S.h, fontSize: 16, color: "#f2b705" }}>3 · Confirm sign-ups</h2>
+        <p style={{ fontSize: 12, opacity: .8 }}>Email every unverified player a confirm-entry link (catches sign-ups from before email verification went live). Run once Resend shows Verified.</p>
+        <button style={S.btn} onClick={sendConfirmations}>Email unverified players</button>
+        {confMsg && <p style={{ color: "#f2b705", fontSize: 13, marginTop: 8 }}>{confMsg}</p>}
       </div>
 
       {msg && <p style={{ color: "#f2b705", fontSize: 13 }}>{msg}</p>}
