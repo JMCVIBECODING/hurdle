@@ -205,7 +205,7 @@ export default function Game() {
         {step === "intro" && (
           <div className="screen">
             <p className="kick">Royal Ascot · 16–20 June · Free to play</p>
-            <h1 className="huge">Can you call<br />all <span className="u">seven</span>?</h1>
+            <h1 className="huge">Can you call all<br /><span className="u">seven</span> races?</h1>
             <p className="lead" style={{ marginTop: 16 }}>The free Royal Ascot prediction game. Pick the winner of all 7 races and prove you're the sharpest tipster in your group. No betting — just bragging rights.</p>
             <div className="stats">
               <div><b>7</b><span>Races a day</span></div>
