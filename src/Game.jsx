@@ -19,6 +19,7 @@ export default function Game() {
   const [email, setEmail] = useState("");
   const [optIn, setOptIn] = useState(false);
   const [locked, setLocked] = useState(false);
+  const [verified, setVerified] = useState(false);
   const [busy, setBusy] = useState(false);
   const [showBoard, setShowBoard] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -63,6 +64,7 @@ export default function Game() {
     if (!res.ok) return;
     trackBoth("Lead", { email, content_name: "ascot_seven_entry" });
     if (optIn) trackBoth("CompleteRegistration", { email, content_name: "newsletter" });
+    setVerified(res.verified);
     setLocked(true);
     setStep("done");
   }
@@ -154,6 +156,8 @@ export default function Game() {
         .check{display:flex;gap:11px;align-items:flex-start;font-size:12.5px;opacity:.8;line-height:1.45;cursor:pointer;margin-bottom:18px;}
         .check input{width:20px;height:20px;flex:0 0 auto;accent-color:var(--gold);margin:0;cursor:pointer;}
         .tick{width:64px;height:64px;border-radius:50%;background:rgba(34,192,138,.15);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 0 18px;}
+        .confirm{background:rgba(242,183,5,.1);border:1px solid rgba(242,183,5,.3);border-radius:12px;padding:13px;font-size:13px;line-height:1.45;margin:0 0 4px;}
+        .confirm b{color:var(--gold);}
         .sharelab{font-family:'Oswald';text-transform:uppercase;letter-spacing:.08em;font-size:11px;opacity:.6;margin:22px 0 9px;}
         .sharerow{display:flex;gap:8px;}
         .sbtn{flex:1;text-align:center;text-decoration:none;font-family:'Oswald';font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:13px;
@@ -259,9 +263,11 @@ export default function Game() {
                 <h2 className="h1">You're in.</h2>
                 <p className="lead">
                   {made} pick{made !== 1 ? "s" : ""} locked for today.{" "}
-                  {optIn ? "Check your inbox and click the link to confirm the newsletter. " : ""}
                   {settled ? `You've scored ${youPoints} point${youPoints !== 1 ? "s" : ""} so far.` : "Your picks score as each race runs — 5 for a win, 3 for second, 1 for third."}
                 </p>
+                {!verified && (
+                  <p className="confirm">📧 Check your email and tap the link to <b>confirm your entry</b> — only confirmed players are eligible for the £500.</p>
+                )}
                 {napStarted && napName && (
                   <p className="lead" style={{ color: "var(--cream)" }}>🤖 Today's HRO <b>NAP</b> was <b>{napName}</b> — it {napWon ? "landed ✅" : "didn't land ❌"}.</p>
                 )}

@@ -13,6 +13,8 @@ create table if not exists public.players (
   id uuid primary key default gen_random_uuid(),
   email text unique not null,
   name text,
+  verified boolean not null default false,
+  verify_token text,
   created_at timestamptz not null default now()
 );
 create table if not exists public.races (
@@ -53,7 +55,7 @@ select p.email,
        max(p.locked_at) as reached_at
 from public.picks p
 join public.results r on r.event_day = p.event_day and r.race_id = p.race_id
-left join public.players pl on pl.email = p.email
+join public.players pl on pl.email = p.email and pl.verified = true
 group by p.email, coalesce(pl.name, split_part(p.email,'@',1))
 having sum(case when p.runner_id = r.winning_runner_id then 5
                 when p.runner_id = r.second_runner_id then 3
@@ -80,13 +82,15 @@ grant select on public.leaderboard to anon, authenticated;
 -- 4. WRITE FUNCTIONS (SECURITY DEFINER) -------------------------------------
 
 -- Public: email capture + store picks for races not yet started.
+-- Returns { token, verified } so the app can email an unconfirmed player.
 create or replace function public.lock_entry(p_email text, p_picks jsonb)
-returns void language plpgsql security definer set search_path = public as $$
-declare rec jsonb;
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare rec jsonb; v_token text; v_verified boolean;
 begin
-  insert into players (email, name)
-  values (p_email, split_part(p_email, '@', 1))
-  on conflict (email) do update set name = excluded.name;
+  insert into players (email, name, verify_token, verified)
+  values (p_email, split_part(p_email, '@', 1), gen_random_uuid()::text, false)
+  on conflict (email) do update set name = excluded.name
+  returning verify_token, verified into v_token, v_verified;
 
   for rec in select * from jsonb_array_elements(coalesce(p_picks, '[]'::jsonb))
   loop
@@ -95,9 +99,24 @@ begin
     on conflict (email, event_day, race_id)
       do update set runner_id = excluded.runner_id, locked_at = now();
   end loop;
+
+  return jsonb_build_object('token', v_token, 'verified', coalesce(v_verified, false));
 end; $$;
 revoke all on function public.lock_entry(text, jsonb) from public;
 grant execute on function public.lock_entry(text, jsonb) to anon, authenticated;
+
+-- Confirm a player's email (makes them prize-eligible).
+create or replace function public.verify_email(p_token text)
+returns boolean language plpgsql security definer set search_path = public as $$
+declare n int;
+begin
+  if p_token is null then return false; end if;
+  update players set verified = true where verify_token = p_token;
+  get diagnostics n = row_count;
+  return n > 0;
+end; $$;
+revoke all on function public.verify_email(text) from public;
+grant execute on function public.verify_email(text) to anon, authenticated;
 
 -- Admin: upsert a day's card + NAP. Restricted to logged-in (authenticated).
 create or replace function public.save_card(p_event_day date, p_card jsonb, p_nap_race_id text, p_nap_runner_id text)

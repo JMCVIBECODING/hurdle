@@ -67,9 +67,21 @@ export async function lockEntry(email, day, picks, races) {
     .filter((r) => picks[r.id] && !hasStarted(day, r.time, now))
     .map((r) => ({ event_day: day, race_id: r.id, runner_id: picks[r.id] }));
 
-  const { error } = await supabase.rpc("lock_entry", { p_email: email, p_picks: rows });
+  const { data, error } = await supabase.rpc("lock_entry", { p_email: email, p_picks: rows });
   if (error) return { ok: false, error: error.message };
-  return { ok: true, stored: rows.length };
+
+  const verified = Boolean(data?.verified);
+  // New / unconfirmed player: fire the confirm-entry email (Resend).
+  if (!verified && data?.token) {
+    try {
+      await fetch("/api/send-verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, token: data.token }),
+      });
+    } catch { /* ignore */ }
+  }
+  return { ok: true, stored: rows.length, verified };
 }
 
 // Optional newsletter opt-in. Posts to the Vercel function, which forces Beehiiv
