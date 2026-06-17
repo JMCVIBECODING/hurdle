@@ -226,7 +226,7 @@ export default function Game() {
         <div id="card" />
         {races.map((r, i) => {
           const off = hasStarted(day, r.time, now);
-          const showNapBadge = r.id === nap.raceId && napStarted;
+          const showNapBadge = r.id === nap.raceId && napStarted && Boolean(napName);
           return (
             <div className={`race ${off ? "off" : ""}`} key={r.id}>
               <div className="rhead">
@@ -279,7 +279,7 @@ export default function Game() {
         {settled && (
           <div className="result">
             <div className="scoreline"><div className="big">{youHits}/7</div><small>Winners found{settledRaces.length < races.length ? ` · ${settledRaces.length} of 7 settled` : ""}</small></div>
-            {napStarted && (
+            {napStarted && napName && (
               <div className="napbox">🤖 Today's HRO <b>NAP</b> was <b>{napName}</b> in the {napRace.time} — it <b>{napSettled ? (napWon ? "WON ✅" : "didn't land ❌") : "is running"}</b>. {backedNap ? "You were on it — nice." : "You didn't have it."}</div>
             )}
             <div className="funnel">
