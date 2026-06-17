@@ -82,14 +82,22 @@ grant select on public.leaderboard to anon, authenticated;
 -- 4. WRITE FUNCTIONS (SECURITY DEFINER) -------------------------------------
 
 -- Public: email capture + store picks for races not yet started.
+-- Fun racing codename for the public leaderboard (no email exposed).
+create or replace function public.gen_codename()
+returns text language sql volatile set search_path = public as $$
+  select (array['Gallop','Silk','Turf','Furlong','Stable','Paddock','Steeple','Derby','Sprint','Photo','Maiden','Going','Ascot','Epsom','Aintree'])[floor(random()*15)+1]
+      || (array['Hawk','Rail','King','Ghost','Bolt','Ace','Fox','Colt','Dash','Pulse','Rider','Oracle','Tipster','Jockey','Flyer'])[floor(random()*15)+1]
+      || floor(random()*900+100)::text;
+$$;
+
 -- Returns { token, verified } so the app can email an unconfirmed player.
 create or replace function public.lock_entry(p_email text, p_picks jsonb)
 returns jsonb language plpgsql security definer set search_path = public as $$
 declare rec jsonb; v_token text; v_verified boolean;
 begin
   insert into players (email, name, verify_token, verified)
-  values (p_email, split_part(p_email, '@', 1), gen_random_uuid()::text, false)
-  on conflict (email) do update set name = excluded.name
+  values (p_email, public.gen_codename(), gen_random_uuid()::text, false)
+  on conflict (email) do update set email = excluded.email   -- keep existing codename/token/verified
   returning verify_token, verified into v_token, v_verified;
 
   for rec in select * from jsonb_array_elements(coalesce(p_picks, '[]'::jsonb))
