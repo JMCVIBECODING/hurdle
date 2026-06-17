@@ -23,14 +23,14 @@ export function track(event, params) {
   if (typeof window !== "undefined" && window.fbq) window.fbq("track", event, params);
 }
 
-export function consented() {
-  try { return localStorage.getItem("a7_consent") === "yes"; } catch { return false; }
+export function declined() {
+  try { return localStorage.getItem("a7_consent") === "no"; } catch { return false; }
 }
 
 // Fire the same event to the browser pixel AND the Conversions API with a shared
-// event_id so Meta de-duplicates. Only runs with consent. email improves matching.
+// event_id so Meta de-duplicates. Fires for everyone except explicit opt-outs.
 export function trackBoth(event, { email, ...custom } = {}) {
-  if (!consented()) return;
+  if (declined()) return;
   const eventId = (window.crypto?.randomUUID?.() || String(Date.now()) + Math.round(Math.random() * 1e9));
   if (window.fbq) window.fbq("track", event, custom, { eventID: eventId });
   try {
