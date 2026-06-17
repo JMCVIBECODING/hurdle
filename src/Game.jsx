@@ -162,8 +162,8 @@ export default function Game() {
         .opt:active{transform:scale(.99);}
         .opt:hover{border-color:rgba(242,183,5,.5);}
         .opt.on{background:var(--gold);color:#1a1400;border-color:var(--gold);font-weight:700;}
-        .opt .dot{flex:0 0 26px;height:26px;border-radius:8px;background:rgba(244,236,216,.08);display:flex;align-items:center;justify-content:center;font-size:11px;font-family:'Oswald';opacity:.7;}
-        .opt.on .dot{background:rgba(26,20,0,.18);opacity:1;}
+        .opt .dot{flex:0 0 22px;height:22px;border-radius:50%;border:2px solid rgba(244,236,216,.25);background:transparent;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;}
+        .opt.on .dot{border-color:#1a1400;background:#1a1400;color:var(--gold);}
         .rowbtns{display:flex;gap:10px;margin-top:16px;}
         .rowbtns .b{flex:1;background:rgba(244,236,216,.06);border:1px solid var(--line);color:var(--cream);border-radius:12px;padding:13px;font-size:13px;cursor:pointer;
           font-family:'Oswald';text-transform:uppercase;letter-spacing:.05em;}
@@ -269,7 +269,7 @@ export default function Game() {
               <div className="opts">
                 {r.runners.map((run, i) => (
                   <button key={run.id} className={`opt ${picks[r.id] === run.id ? "on" : ""}`} onClick={() => pick(r.id, run.id, step)}>
-                    <span className="dot">{picks[r.id] === run.id ? "✓" : i + 1}</span>{run.name}
+                    <span className="dot">{picks[r.id] === run.id ? "✓" : ""}</span>{run.name}
                   </button>
                 ))}
               </div>
