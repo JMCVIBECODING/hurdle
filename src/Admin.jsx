@@ -52,8 +52,8 @@ export default function Admin() {
     } else {
       setMsg(`No card saved for ${day} yet. Paste one below and save.`);
     }
-    const { data: res } = await supabase.from("results").select("race_id, winning_runner_id").eq("event_day", day);
-    const w = {}; (res || []).forEach((x) => { w[x.race_id] = x.winning_runner_id; });
+    const { data: res } = await supabase.from("results").select("race_id, winning_runner_id, second_runner_id, third_runner_id").eq("event_day", day);
+    const w = {}; (res || []).forEach((x) => { w[x.race_id] = { win: x.winning_runner_id, second: x.second_runner_id, third: x.third_runner_id }; });
     setWinners(w);
     if (r) setMsg(`Loaded ${day}.`);
   }
@@ -72,8 +72,13 @@ export default function Admin() {
   async function saveResults() {
     const card = parsedCard();
     if (!card) return;
-    const rows = card.filter((r) => winners[r.id]).map((r) => ({ race_id: r.id, winning_runner_id: winners[r.id] }));
-    if (!rows.length) { setMsg("Pick at least one winner first."); return; }
+    const rows = card.filter((r) => winners[r.id]?.win).map((r) => ({
+      race_id: r.id,
+      winning_runner_id: winners[r.id].win,
+      second_runner_id: winners[r.id].second || null,
+      third_runner_id: winners[r.id].third || null,
+    }));
+    if (!rows.length) { setMsg("Set at least one winner first."); return; }
     setMsg("Saving results...");
     const { error } = await supabase.rpc("save_results", { p_event_day: day, p_results: rows });
     setMsg(error ? "Save failed: " + error.message : `Saved ${rows.length} result(s). Leaderboard will recompute.`);
@@ -151,17 +156,23 @@ export default function Admin() {
 
       <div style={S.card}>
         <h2 style={{ ...S.h, fontSize: 16, color: "#f2b705" }}>2 · Results (after each race)</h2>
-        <p style={{ fontSize: 12, opacity: .8 }}>Set each race's winner. Players score 1 point per correct pick. Recompute is automatic.</p>
+        <p style={{ fontSize: 12, opacity: .8 }}>Set 1st / 2nd / 3rd for each race. Players score 5 / 3 / 1 points. 2nd and 3rd are optional but recommended. Recompute is automatic.</p>
         {card.length === 0 && <p style={{ fontSize: 13, opacity: .7 }}>Load or paste a card first.</p>}
-        {card.map((r) => (
-          <div style={S.row} key={r.id}>
-            <span style={{ fontSize: 13 }}>{r.name} <span style={{ opacity: .6 }}>({r.time})</span></span>
-            <select style={S.sel} value={winners[r.id] || ""} onChange={(e) => setWinners((w) => ({ ...w, [r.id]: e.target.value }))}>
-              <option value="">winner…</option>
-              {r.runners.map((rn) => <option key={rn.id} value={rn.id}>{rn.name}</option>)}
-            </select>
-          </div>
-        ))}
+        {card.map((r) => {
+          const w = winners[r.id] || {};
+          const set = (k, v) => setWinners((prev) => ({ ...prev, [r.id]: { ...prev[r.id], [k]: v } }));
+          return (
+            <div style={{ ...S.row, flexWrap: "wrap", gap: 6 }} key={r.id}>
+              <span style={{ fontSize: 13, flex: "1 1 100%", marginBottom: 4 }}>{r.name} <span style={{ opacity: .6 }}>({r.time})</span></span>
+              {[["win", "1st"], ["second", "2nd"], ["third", "3rd"]].map(([k, lab]) => (
+                <select key={k} style={{ ...S.sel, flex: 1 }} value={w[k] || ""} onChange={(e) => set(k, e.target.value)}>
+                  <option value="">{lab}…</option>
+                  {r.runners.map((rn) => <option key={rn.id} value={rn.id}>{rn.name}</option>)}
+                </select>
+              ))}
+            </div>
+          );
+        })}
         {card.length > 0 && <div style={{ marginTop: 12 }}><button style={S.btn} onClick={saveResults}>Save results</button></div>}
       </div>
 

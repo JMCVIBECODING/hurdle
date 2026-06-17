@@ -18,17 +18,26 @@ export async function loadCard(day) {
   };
 }
 
-// Recorded winners for a day: { [raceId]: winningRunnerId }
+// Recorded placings for a day: { [raceId]: { win, second, third } }
 export async function loadResults(day) {
   if (!hasSupabase) return {};
   const { data, error } = await supabase
     .from("results")
-    .select("race_id, winning_runner_id")
+    .select("race_id, winning_runner_id, second_runner_id, third_runner_id")
     .eq("event_day", day);
   if (error || !data) return {};
   const out = {};
-  data.forEach((r) => { out[r.race_id] = r.winning_runner_id; });
+  data.forEach((r) => { out[r.race_id] = { win: r.winning_runner_id, second: r.second_runner_id, third: r.third_runner_id }; });
   return out;
+}
+
+// Points for a pick given a race's result. Win 5, 2nd 3, 3rd 1.
+export function pickPoints(result, runnerId) {
+  if (!result || !runnerId) return 0;
+  if (runnerId === result.win) return 5;
+  if (runnerId === result.second) return 3;
+  if (runnerId === result.third) return 1;
+  return 0;
 }
 
 // Festival leaderboard: [{ name, points }], best first.

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { hasSupabase } from "./lib/supabase";
-import { loadCard, loadResults, loadBoard, lockEntry, subscribeNewsletter } from "./lib/api";
+import { loadCard, loadResults, loadBoard, lockEntry, subscribeNewsletter, pickPoints } from "./lib/api";
 import { SAMPLE_RACES, SAMPLE_NAP, SEED_BOARD } from "./lib/sampleCard";
 import { todayDay, hasStarted } from "./lib/festival";
 
@@ -43,8 +43,8 @@ export default function Game() {
   const napName = napRace?.runners.find((r) => r.id === nap.runnerId)?.name;
   const napStarted = napRace ? hasStarted(day, napRace.time, now) : false;
   const settled = Object.keys(results).length > 0;
-  const youHits = races.filter((r) => results[r.id] && picks[r.id] === results[r.id]).length;
-  const napWon = results[nap.raceId] === nap.runnerId;
+  const youPoints = races.reduce((sum, r) => sum + pickPoints(results[r.id], picks[r.id]), 0);
+  const napWon = results[nap.raceId]?.win === nap.runnerId;
 
   function pick(raceId, runnerId, idx) {
     setPicks((p) => ({ ...p, [raceId]: runnerId }));
@@ -69,10 +69,13 @@ export default function Game() {
       // Before any race runs — a challenge, not a 0/7 score.
       return `I've locked my 7 for Royal Ascot 🏇\nGoing for the £500 on The Ascot Seven by Horse Racing Oracle.\nThink you can beat me? Free to play 👇\nhttps://hurdlegame.app`;
     }
-    const grid = races.map((r) => (results[r.id] && picks[r.id] === results[r.id]) ? "🟩" : "⬛").join("");
+    const grid = races.map((r) => {
+      const pts = pickPoints(results[r.id], picks[r.id]);
+      return pts === 5 ? "🟩" : pts > 0 ? "🟨" : "⬛";
+    }).join("");
     const napLine = napStarted && napName ? `\n🤖 HRO's NAP: ${napWon ? "✅ landed" : "❌ no joy"}` : "";
-    return `THE ASCOT SEVEN 🏇 ${youHits}/7 winners\n${grid}${napLine}\n\nFree, top 3 split £500 → https://hurdlegame.app`;
-  }, [settled, races, results, picks, youHits, napStarted, napName, napWon]);
+    return `THE ASCOT SEVEN 🏇 ${youPoints} pts\n${grid}${napLine}\n\n🟩 win · 🟨 placed · Free, top 3 split £500 → https://hurdlegame.app`;
+  }, [settled, races, results, picks, youPoints, napStarted, napName, napWon]);
   const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
   const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
   async function copyShare() {
@@ -183,7 +186,7 @@ export default function Game() {
           <div className="screen">
             <p className="kick">Royal Ascot · 16–20 June · Free to play</p>
             <h1 className="huge">Pick 7.<br />Top the <span className="u">board</span>.</h1>
-            <p className="lead" style={{ marginTop: 16 }}>A free prediction game for Royal Ascot. You don't need all 7 — every correct winner scores, points build all week, and the <b>top 3 each win cash</b> (£250 / £150 / £100). One pick is HRO's <b>AI NAP</b>. No betting, just bragging rights.</p>
+            <p className="lead" style={{ marginTop: 16 }}>A free prediction game for Royal Ascot. You don't need winners — your horse places, you score: <b>5 for a win, 3 for second, 1 for third</b>. Points build all week and the <b>top 3 each win cash</b> (£250 / £150 / £100). One pick is HRO's <b>AI NAP</b>. No betting, just bragging rights.</p>
             <div className="stats">
               <div><b>£500</b><span>Prize pool</span></div>
               <div><b>7</b><span>Races today</span></div>
@@ -236,7 +239,7 @@ export default function Game() {
             <input className="field" type="email" inputMode="email" placeholder="you@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
             <label className="check">
               <input type="checkbox" checked={optIn} onChange={(e) => setOptIn(e.target.checked)} />
-              <span>Also email me the daily NAP and updates (optional). Confirm via the link we send. Unsubscribe anytime.</span>
+              <span>Send me Horse Racing Oracle's <b>free daily NAP</b> (71% win, 89% place) + updates. Optional, confirm by email, unsubscribe anytime.</span>
             </label>
             <button className="cta" disabled={busy || !email.includes("@")} onClick={submit}>{busy ? "Locking..." : "Lock my entry"}</button>
             <button className="ghost" onClick={() => setStep(racingOver ? "intro" : openRaces.length - 1)}>← Back</button>
@@ -254,7 +257,7 @@ export default function Game() {
                 <p className="lead">
                   {made} pick{made !== 1 ? "s" : ""} locked for today.{" "}
                   {optIn ? "Check your inbox and click the link to confirm the newsletter. " : ""}
-                  {settled ? `You've found ${youHits}/7 winners so far.` : "Your picks score as each race runs."}
+                  {settled ? `You've scored ${youPoints} point${youPoints !== 1 ? "s" : ""} so far.` : "Your picks score as each race runs — 5 for a win, 3 for second, 1 for third."}
                 </p>
                 {napStarted && napName && (
                   <p className="lead" style={{ color: "var(--cream)" }}>🤖 Today's HRO <b>NAP</b> was <b>{napName}</b> — it {napWon ? "landed ✅" : "didn't land ❌"}.</p>
@@ -285,7 +288,7 @@ export default function Game() {
                 <BoardList board={board} />
               </>
             )}
-            {locked && showBoard && <div style={{ marginTop: 16 }}><BoardList board={board} you={settled ? youHits : null} /></div>}
+            {locked && showBoard && <div style={{ marginTop: 16 }}><BoardList board={board} you={settled ? youPoints : null} /></div>}
           </div>
         )}
       </div>

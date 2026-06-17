@@ -28,7 +28,7 @@ This Competition is a free-to-enter prediction and leaderboard game. It is not a
 - To enter, players create a free account and play the Game's daily card during the event period.
 - For each race, a player may make one selection: the horse they predict will win. Players may enter as many or as few races as they like and are **not required to enter every race**.
 - A selection for a race must be locked before that race's advertised start time. Once a race has started, its selection cannot be made or changed. Races a player does not enter, or does not lock in time, score nothing.
-- A player earns **1 point for each race in which they correctly predict the winner**, in accordance with the scoring rules shown in the Game. The scoring rules for an event period will not be materially changed after that event period has started, except where reasonably necessary to correct an obvious error, comply with law, or address circumstances outside the Promoter's reasonable control.
+- A player earns points based on where their selected horse finishes in each race they have entered: **5 points if it wins, 3 points if it finishes second, 1 point if it finishes third, and 0 points otherwise**, in accordance with the scoring rules shown in the Game. The scoring rules for an event period will not be materially changed after that event period has started, except where reasonably necessary to correct an obvious error, comply with law, or address circumstances outside the Promoter's reasonable control.
 - The winners are the eligible players with the highest verified points total on the final leaderboard at the end of the event period:
   - 1st place: £250
   - 2nd place: £150

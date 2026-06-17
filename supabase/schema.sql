@@ -35,22 +35,30 @@ create table if not exists public.results (
   event_day date not null,
   race_id text not null,
   winning_runner_id text not null,
+  second_runner_id text,
+  third_runner_id text,
   created_at timestamptz not null default now(),
   primary key (event_day, race_id)
 );
 
 -- 2. LEADERBOARD VIEW -------------------------------------------------------
+-- Points: win 5, second 3, third 1.
 create or replace view public.leaderboard as
 select p.email,
        coalesce(pl.name, split_part(p.email,'@',1)) as name,
-       count(*)::int as points,
+       sum(case when p.runner_id = r.winning_runner_id then 5
+                when p.runner_id = r.second_runner_id then 3
+                when p.runner_id = r.third_runner_id  then 1
+                else 0 end)::int as points,
        max(p.locked_at) as reached_at
 from public.picks p
-join public.results r
-  on r.event_day = p.event_day and r.race_id = p.race_id
- and r.winning_runner_id = p.runner_id
+join public.results r on r.event_day = p.event_day and r.race_id = p.race_id
 left join public.players pl on pl.email = p.email
 group by p.email, coalesce(pl.name, split_part(p.email,'@',1))
+having sum(case when p.runner_id = r.winning_runner_id then 5
+                when p.runner_id = r.second_runner_id then 3
+                when p.runner_id = r.third_runner_id  then 1
+                else 0 end) > 0
 order by points desc, reached_at asc;
 
 -- 3. RLS: reads only (writes happen via the functions below) ----------------
@@ -111,10 +119,12 @@ declare rec jsonb;
 begin
   for rec in select * from jsonb_array_elements(coalesce(p_results, '[]'::jsonb))
   loop
-    insert into results (event_day, race_id, winning_runner_id)
-    values (p_event_day, rec->>'race_id', rec->>'winning_runner_id')
+    insert into results (event_day, race_id, winning_runner_id, second_runner_id, third_runner_id)
+    values (p_event_day, rec->>'race_id', rec->>'winning_runner_id', rec->>'second_runner_id', rec->>'third_runner_id')
     on conflict (event_day, race_id)
-      do update set winning_runner_id = excluded.winning_runner_id;
+      do update set winning_runner_id = excluded.winning_runner_id,
+                    second_runner_id = excluded.second_runner_id,
+                    third_runner_id = excluded.third_runner_id;
   end loop;
 end; $$;
 revoke all on function public.save_results(date, jsonb) from public, anon;
