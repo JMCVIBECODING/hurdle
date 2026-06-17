@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Game from "./Game";
 import Terms from "./Terms";
 import Admin from "./Admin";
+import ConsentBanner from "./ConsentBanner";
 
 export default function App() {
   return (
@@ -11,6 +12,7 @@ export default function App() {
         <Route path="/terms" element={<Terms />} />
         <Route path="/admin" element={<Admin />} />
       </Routes>
+      <ConsentBanner />
     </BrowserRouter>
   );
 }
