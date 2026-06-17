@@ -39,6 +39,7 @@ export default function Game() {
   // Only races that haven't started are pickable in the funnel.
   const openRaces = useMemo(() => races.filter((r) => !hasStarted(day, r.time, now)), [races, day, now]);
   const racingOver = openRaces.length === 0;
+  const firstLock = openRaces[0]?.time;
 
   const made = Object.keys(picks).length;
   const napRace = races.find((r) => r.id === nap.raceId);
@@ -116,7 +117,7 @@ export default function Game() {
         .brand{font-family:'Oswald';font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:16px;}
         .brand b{color:var(--gold);}
         .nlink{background:none;border:0;color:var(--cream);opacity:.6;font-size:12px;cursor:pointer;text-transform:uppercase;letter-spacing:.05em;}
-        .stage{flex:1;display:flex;flex-direction:column;justify-content:center;max-width:480px;margin:0 auto;width:100%;padding:8px 18px 28px;}
+        .stage{flex:1;display:flex;flex-direction:column;justify-content:flex-start;max-width:480px;margin:0 auto;width:100%;padding:18px 18px 36px;}
         .screen{animation:rise .35s cubic-bezier(.2,.7,.3,1);}
         @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
         .kick{font-family:'Oswald';text-transform:uppercase;letter-spacing:.14em;font-size:11px;color:var(--gold);margin:0 0 14px;}
@@ -135,6 +136,18 @@ export default function Game() {
         .cta:disabled{opacity:.35;cursor:not-allowed;}
         .ghost{background:none;border:0;color:var(--cream);opacity:.6;font-size:13px;cursor:pointer;padding:12px;width:100%;margin-top:6px;}
         .trust{font-size:11px;opacity:.5;text-align:center;margin:16px 0 0;line-height:1.5;}
+        .lockline{text-align:center;font-size:12px;color:var(--gold);margin:10px 0 0;font-family:'Oswald';letter-spacing:.03em;}
+        .sec{border-top:1px solid var(--line);margin-top:26px;padding-top:22px;}
+        .sech{font-family:'Oswald';font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:15px;margin:0 0 10px;}
+        .secp{font-size:14px;line-height:1.55;opacity:.85;margin:0 0 14px;}
+        .secp b{color:var(--gold);}
+        .soon{font-family:'Inter';font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;background:rgba(242,183,5,.16);color:var(--gold);padding:2px 7px;border-radius:10px;vertical-align:middle;margin-left:6px;}
+        .steps{margin:0;padding:0;list-style:none;counter-reset:s;}
+        .steps li{counter-increment:s;position:relative;padding:0 0 12px 34px;font-size:14px;line-height:1.5;opacity:.9;}
+        .steps li:before{content:counter(s);position:absolute;left:0;top:-1px;width:24px;height:24px;border-radius:8px;background:var(--gold);color:#1a1400;font-family:'Oswald';font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;}
+        .steps li b{color:var(--cream);}
+        .sec.hro{background:rgba(214,51,108,.06);border:1px solid rgba(214,51,108,.25);border-radius:14px;padding:16px;margin-top:26px;}
+        .sec.hro .cta{display:block;text-align:center;text-decoration:none;}
         .qhead{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 4px;}
         .qno{font-family:'Oswald';color:var(--gold);font-size:13px;letter-spacing:.05em;}
         .qtime{font-family:'Oswald';font-size:13px;opacity:.6;}
@@ -192,12 +205,12 @@ export default function Game() {
         {step === "intro" && (
           <div className="screen">
             <p className="kick">Royal Ascot · 16–20 June · Free to play</p>
-            <h1 className="huge">Pick 7.<br />Top the <span className="u">board</span>.</h1>
-            <p className="lead" style={{ marginTop: 16 }}>A free prediction game for Royal Ascot. You don't need winners — your horse places, you score: <b>5 for a win, 3 for second, 1 for third</b>. Points build all week and the <b>top 3 each win cash</b> (£250 / £150 / £100). One pick is HRO's <b>AI NAP</b>. No betting, just bragging rights.</p>
+            <h1 className="huge">Can you call<br />all <span className="u">seven</span>?</h1>
+            <p className="lead" style={{ marginTop: 16 }}>The free Royal Ascot prediction game. Pick the winner of all 7 races and prove you're the sharpest tipster in your group. No betting — just bragging rights.</p>
             <div className="stats">
-              <div><b>£500</b><span>Prize pool</span></div>
-              <div><b>7</b><span>Races today</span></div>
-              <div><b>Free</b><span>To enter</span></div>
+              <div><b>7</b><span>Races a day</span></div>
+              <div><b>Leagues</b><span>Beat your mates</span></div>
+              <div><b>Free</b><span>To play</span></div>
             </div>
             {racingOver ? (
               <>
@@ -205,9 +218,35 @@ export default function Game() {
                 <button className="cta" onClick={() => setStep("email")}>Get tomorrow's card →</button>
               </>
             ) : (
-              <button className="cta" onClick={() => setStep(0)}>Start picking →</button>
+              <>
+                <button className="cta" onClick={() => setStep(0)}>Start picking →</button>
+                {firstLock && <p className="lockline">Today's card locks at {firstLock}</p>}
+              </>
             )}
             <p className="trust">18+ · Free to enter, no purchase necessary · Not a betting product</p>
+
+            <div className="sec">
+              <p className="sech">How it works</p>
+              <ol className="steps">
+                <li><b>Pick your winners</b> — one tap per race. Lock in before the off.</li>
+                <li><b>Score points</b> — the better your horse runs, the more you bank.</li>
+                <li><b>Climb the board</b> — top the festival leaderboard, all week.</li>
+              </ol>
+            </div>
+            <div className="sec">
+              <p className="sech">Top the board, win real cash</p>
+              <p className="secp">Points build all week. The top 3 over the festival split <b>£500</b> — £250 / £150 / £100. Free to enter, no purchase necessary.</p>
+            </div>
+            <div className="sec">
+              <p className="sech">Play with your mates <span className="soon">soon</span></p>
+              <p className="secp">Private leagues drop this week — create one, share the code, and settle who actually knows their racing. Lock your entry now to be first in.</p>
+            </div>
+            <div className="sec hro">
+              <p className="sech">Want the inside track?</p>
+              <p className="secp">Each morning, Horse Racing Oracle publishes its NAP of the day — its single strongest pick of the card, with the form study behind it. Get tomorrow's NAP before it runs.</p>
+              <a className="cta" href="https://horseracingoracleai.com/" target="_blank" rel="noopener">Start your £1.99 trial →</a>
+            </div>
+            {!racingOver && <button className="cta" style={{ marginTop: 4 }} onClick={() => setStep(0)}>Start picking →</button>}
           </div>
         )}
 
@@ -303,10 +342,10 @@ export default function Game() {
       </div>
 
       <div className="foot">
-        The Ascot Seven™ — a Hurdle game, powered by <a href="https://horseracingoracleai.com/" target="_blank" rel="noopener">Horse Racing Oracle</a>.<br />
+        The Ascot Seven — a Hurdle game, powered by <a href="https://horseracingoracleai.com/" target="_blank" rel="noopener">Horse Racing Oracle</a><br />
         18+ · Free to enter, no purchase necessary · GB · Not a betting product · <Link to="/terms">Prize terms</Link><br />
-        If gambling affects you, support is at <a href="https://www.begambleaware.org">BeGambleAware.org</a>.<br />
-        © 2026 Hurdle.
+        If gambling affects you, support is available at <a href="https://www.begambleaware.org">BeGambleAware.org</a><br />
+        © 2026 Hurdle
       </div>
     </div>
   );
