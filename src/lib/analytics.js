@@ -22,3 +22,23 @@ export function loadPixel() {
 export function track(event, params) {
   if (typeof window !== "undefined" && window.fbq) window.fbq("track", event, params);
 }
+
+export function consented() {
+  try { return localStorage.getItem("a7_consent") === "yes"; } catch { return false; }
+}
+
+// Fire the same event to the browser pixel AND the Conversions API with a shared
+// event_id so Meta de-duplicates. Only runs with consent. email improves matching.
+export function trackBoth(event, { email, ...custom } = {}) {
+  if (!consented()) return;
+  const eventId = (window.crypto?.randomUUID?.() || String(Date.now()) + Math.round(Math.random() * 1e9));
+  if (window.fbq) window.fbq("track", event, custom, { eventID: eventId });
+  try {
+    fetch("/api/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ event, eventId, email, url: window.location.href, custom }),
+      keepalive: true,
+    });
+  } catch { /* ignore */ }
+}

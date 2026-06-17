@@ -4,7 +4,7 @@ import { hasSupabase } from "./lib/supabase";
 import { loadCard, loadResults, loadBoard, lockEntry, subscribeNewsletter, pickPoints } from "./lib/api";
 import { SAMPLE_RACES, SAMPLE_NAP, SEED_BOARD } from "./lib/sampleCard";
 import { todayDay, hasStarted } from "./lib/festival";
-import { track } from "./lib/analytics";
+import { trackBoth } from "./lib/analytics";
 
 export default function Game() {
   const day = todayDay();
@@ -61,8 +61,8 @@ export default function Game() {
     if (optIn) subscribeNewsletter(email);
     setBusy(false);
     if (!res.ok) return;
-    track("Lead", { content_name: "ascot_seven_entry" });
-    if (optIn) track("CompleteRegistration", { content_name: "newsletter" });
+    trackBoth("Lead", { email, content_name: "ascot_seven_entry" });
+    if (optIn) trackBoth("CompleteRegistration", { email, content_name: "newsletter" });
     setLocked(true);
     setStep("done");
   }
