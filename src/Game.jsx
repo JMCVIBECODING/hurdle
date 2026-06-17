@@ -65,10 +65,16 @@ export default function Game() {
   }
 
   const shareText = useMemo(() => {
+    if (!settled) {
+      // Before any race runs — a challenge, not a 0/7 score.
+      return `I've locked my 7 for Royal Ascot 🏇\nGoing for the £500 on The Ascot Seven by Horse Racing Oracle.\nThink you can beat me? Free to play 👇\nhttps://hurdlegame.app`;
+    }
     const grid = races.map((r) => (results[r.id] && picks[r.id] === results[r.id]) ? "🟩" : "⬛").join("");
-    const napLine = napStarted && napName ? `\n🤖 HRO's NAP: ${napWon ? "✅ landed" : "❌"}` : "";
-    return `THE ASCOT SEVEN 🏇 by Horse Racing Oracle\nMe ${youHits}/7\n${grid}${napLine}\n\nFree to play, top 3 split £500 → https://hurdlegame.app`;
-  }, [races, results, picks, youHits, napStarted, napName, napWon]);
+    const napLine = napStarted && napName ? `\n🤖 HRO's NAP: ${napWon ? "✅ landed" : "❌ no joy"}` : "";
+    return `THE ASCOT SEVEN 🏇 ${youHits}/7 winners\n${grid}${napLine}\n\nFree, top 3 split £500 → https://hurdlegame.app`;
+  }, [settled, races, results, picks, youHits, napStarted, napName, napWon]);
+  const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+  const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
   async function copyShare() {
     if (navigator.share) {
       try { await navigator.share({ title: "The Ascot Seven", text: shareText, url: "https://hurdlegame.app" }); return; } catch { /* cancelled or unsupported */ }
@@ -142,6 +148,18 @@ export default function Game() {
         .check{display:flex;gap:11px;align-items:flex-start;font-size:12.5px;opacity:.8;line-height:1.45;cursor:pointer;margin-bottom:18px;}
         .check input{width:20px;height:20px;flex:0 0 auto;accent-color:var(--gold);margin:0;cursor:pointer;}
         .tick{width:64px;height:64px;border-radius:50%;background:rgba(34,192,138,.15);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 0 18px;}
+        .sharelab{font-family:'Oswald';text-transform:uppercase;letter-spacing:.08em;font-size:11px;opacity:.6;margin:22px 0 9px;}
+        .sharerow{display:flex;gap:8px;}
+        .sbtn{flex:1;text-align:center;text-decoration:none;font-family:'Oswald';font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:13px;
+          border-radius:12px;padding:14px 6px;cursor:pointer;border:1px solid var(--line);color:#fff;}
+        .sbtn.wa{background:#1faf54;border-color:#1faf54;color:#fff;}
+        .sbtn.x{background:#111;border-color:#111;color:#fff;}
+        .sbtn.cp{background:rgba(244,236,216,.06);color:var(--cream);}
+        .upsell{background:rgba(214,51,108,.08);border:1px solid rgba(214,51,108,.3);border-radius:14px;padding:16px;margin:18px 0 6px;}
+        .upsell .ut{font-family:'Oswald';font-size:18px;margin:0 0 6px;}
+        .upsell .ut b{color:var(--magenta);}
+        .upsell .ud{font-size:12.5px;opacity:.8;line-height:1.45;margin:0 0 13px;}
+        .upsell .cta{display:block;text-align:center;text-decoration:none;}
         .board{background:rgba(244,236,216,.04);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:18px;}
         .board h3{font-family:'Oswald';text-transform:uppercase;font-size:13px;letter-spacing:.06em;margin:0 0 3px;}
         .board .note{font-size:11.5px;opacity:.6;margin:0 0 12px;}
@@ -241,7 +259,20 @@ export default function Game() {
                 {napStarted && napName && (
                   <p className="lead" style={{ color: "var(--cream)" }}>🤖 Today's HRO <b>NAP</b> was <b>{napName}</b> — it {napWon ? "landed ✅" : "didn't land ❌"}.</p>
                 )}
-                <button className="cta" onClick={copyShare}>{copied ? "Copied!" : "Share my card 📲"}</button>
+
+                <p className="sharelab">{settled ? "Share your result" : "Challenge your mates"}</p>
+                <div className="sharerow">
+                  <a className="sbtn wa" href={waUrl} target="_blank" rel="noopener">WhatsApp</a>
+                  <a className="sbtn x" href={xUrl} target="_blank" rel="noopener">X / Twitter</a>
+                  <button className="sbtn cp" onClick={copyShare}>{copied ? "Copied ✓" : "Copy"}</button>
+                </div>
+
+                <div className="upsell">
+                  <p className="ut">Want tomorrow's <b>NAP before it runs</b>?</p>
+                  <p className="ud">Horse Racing Oracle's AI tips, every day of the festival. 60% win rate, 83% place rate on daily NAPs.</p>
+                  <a className="cta" href="https://horseracingoracleai.com/" target="_blank" rel="noopener">Get daily AI tips · £1.99 →</a>
+                </div>
+
                 <button className="ghost" onClick={() => setShowBoard((s) => !s)}>{showBoard ? "Hide leaderboard" : "View leaderboard"}</button>
               </>
             )}
@@ -260,8 +291,10 @@ export default function Game() {
       </div>
 
       <div className="foot">
-        18+ · Free game for entertainment, not a betting product · <Link to="/terms">Prize terms</Link><br />
-        If gambling affects you, support is at <a href="https://www.begambleaware.org">BeGambleAware.org</a>.
+        The Ascot Seven™ — a Hurdle game, powered by <a href="https://horseracingoracleai.com/" target="_blank" rel="noopener">Horse Racing Oracle</a>.<br />
+        18+ · Free to enter, no purchase necessary · GB · Not a betting product · <Link to="/terms">Prize terms</Link><br />
+        If gambling affects you, support is at <a href="https://www.begambleaware.org">BeGambleAware.org</a>.<br />
+        © 2026 Hurdle.
       </div>
     </div>
   );
