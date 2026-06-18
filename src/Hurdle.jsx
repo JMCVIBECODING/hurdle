@@ -108,6 +108,7 @@ export default function Hurdle() {
         .hbrand b{color:var(--gold);}
         .htab{font-family:'Oswald';text-transform:uppercase;letter-spacing:.04em;font-size:11.5px;color:#1a1400;background:var(--gold);padding:7px 11px;border-radius:20px;text-decoration:none;}
         .hwrap{flex:1;display:flex;flex-direction:column;align-items:center;max-width:520px;margin:0 auto;width:100%;padding:6px 14px 26px;}
+        .tagline{font-family:'Oswald';text-transform:uppercase;letter-spacing:.1em;font-size:13px;color:var(--gold);text-align:center;margin:2px 0 12px;}
         .clue{text-align:center;margin:6px 0 16px;}
         .clue .cat{font-family:'Oswald';text-transform:uppercase;letter-spacing:.12em;font-size:12px;color:var(--gold);}
         .clue .txt{font-size:14px;opacity:.85;margin-top:5px;line-height:1.4;}
@@ -153,6 +154,7 @@ export default function Hurdle() {
       </div>
 
       <div className="hwrap">
+        <p className="tagline">The Wordle for horse racing fans</p>
         <div className="clue">
           <div className="cat">Today's Hurdle · {word.category}</div>
           <div className="meta">{len} letters · {MAX_GUESSES} guesses · <button className="link" onClick={() => setHow((h) => !h)}>{how ? "hide" : "how to play"}</button></div>
