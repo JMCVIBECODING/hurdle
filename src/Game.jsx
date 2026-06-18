@@ -77,20 +77,20 @@ export default function Game() {
   const shareText = useMemo(() => {
     if (!settled) {
       // Before any race runs — a challenge, not a 0/7 score.
-      return `I've locked my 7 for Royal Ascot 🏇\nGoing for the £500 on The Ascot Seven by Horse Racing Oracle.\nThink you can beat me? Free to play 👇\nhttps://hurdlegame.app`;
+      return `I've locked my 7 for Royal Ascot 🏇\nGoing for the £500 on The Ascot Seven by Horse Racing Oracle.\nThink you can beat me? Free to play 👇\nhttps://hurdlegame.app/ascot`;
     }
     const grid = races.map((r) => {
       const pts = pickPoints(results[r.id], picks[r.id]);
       return pts === 5 ? "🟩" : pts > 0 ? "🟨" : "⬛";
     }).join("");
     const napLine = napStarted && napName ? `\n🤖 HRO's NAP: ${napWon ? "✅ landed" : "❌ no joy"}` : "";
-    return `THE ASCOT SEVEN 🏇 ${youPoints} pts\n${grid}${napLine}\n\n🟩 win · 🟨 placed · Free, top 3 split £500 → https://hurdlegame.app`;
+    return `THE ASCOT SEVEN 🏇 ${youPoints} pts\n${grid}${napLine}\n\n🟩 win · 🟨 placed · Free, top 3 split £500 → https://hurdlegame.app/ascot`;
   }, [settled, races, results, picks, youPoints, napStarted, napName, napWon]);
   const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
   const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
   async function copyShare() {
     if (navigator.share) {
-      try { await navigator.share({ title: "The Ascot Seven", text: shareText, url: "https://hurdlegame.app" }); return; } catch { /* cancelled or unsupported */ }
+      try { await navigator.share({ title: "The Ascot Seven", text: shareText, url: "https://hurdlegame.app/ascot" }); return; } catch { /* cancelled or unsupported */ }
     }
     try {
       await navigator.clipboard.writeText(shareText);

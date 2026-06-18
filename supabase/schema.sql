@@ -142,6 +142,30 @@ end; $$;
 revoke all on function public.verify_email(text) from public;
 grant execute on function public.verify_email(text) to anon, authenticated;
 
+-- Daily Hurdle word (homepage word game), one per day.
+create table if not exists public.hurdle_words (
+  event_day date primary key,
+  answer text not null,
+  category text,
+  clue text,
+  updated_at timestamptz not null default now()
+);
+alter table public.hurdle_words enable row level security;
+drop policy if exists "hurdle_read" on public.hurdle_words;
+create policy "hurdle_read" on public.hurdle_words for select using (true);
+grant select on public.hurdle_words to anon, authenticated;
+
+create or replace function public.save_hurdle(p_event_day date, p_answer text, p_category text, p_clue text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  insert into hurdle_words (event_day, answer, category, clue, updated_at)
+  values (p_event_day, upper(p_answer), p_category, p_clue, now())
+  on conflict (event_day) do update
+    set answer = upper(excluded.answer), category = excluded.category, clue = excluded.clue, updated_at = now();
+end; $$;
+revoke all on function public.save_hurdle(date, text, text, text) from public, anon;
+grant execute on function public.save_hurdle(date, text, text, text) to authenticated;
+
 -- Admin: upsert a day's card + NAP. Restricted to logged-in (authenticated).
 create or replace function public.save_card(p_event_day date, p_card jsonb, p_nap_race_id text, p_nap_runner_id text)
 returns void language plpgsql security definer set search_path = public as $$

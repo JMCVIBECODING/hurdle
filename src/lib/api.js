@@ -84,6 +84,26 @@ export async function lockEntry(email, day, picks, races) {
   return { ok: true, stored: rows.length, verified, name: data?.name || "" };
 }
 
+// Today's Hurdle word: { answer, category, clue } | null
+export async function loadHurdle(day) {
+  if (!hasSupabase) return null;
+  const { data, error } = await supabase
+    .from("hurdle_words")
+    .select("answer, category, clue")
+    .eq("event_day", day)
+    .maybeSingle();
+  if (error || !data) return null;
+  return data;
+}
+
+// Admin: set today's Hurdle word (SECURITY DEFINER, authenticated only).
+export async function saveHurdle(day, answer, category, clue) {
+  const { error } = await supabase.rpc("save_hurdle", {
+    p_event_day: day, p_answer: answer, p_category: category, p_clue: clue,
+  });
+  return { ok: !error, error: error?.message };
+}
+
 // Live player count for social proof (real, via SECURITY DEFINER count fn).
 export async function loadPlayerCount() {
   if (!hasSupabase) return 0;

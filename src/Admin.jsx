@@ -20,6 +20,18 @@ export default function Admin() {
   const [winners, setWinners] = useState({}); // raceId -> runnerId
   const [msg, setMsg] = useState("");
   const [confMsg, setConfMsg] = useState("");
+  const [hAnswer, setHAnswer] = useState("");
+  const [hCategory, setHCategory] = useState("Horse");
+  const [hClue, setHClue] = useState("");
+  const [hMsg, setHMsg] = useState("");
+
+  async function saveHurdleWord() {
+    const ans = hAnswer.trim().toUpperCase().replace(/[^A-Z]/g, "");
+    if (ans.length < 3) { setHMsg("Answer must be 3+ letters (single word, letters only)."); return; }
+    setHMsg("Saving…");
+    const { error } = await supabase.rpc("save_hurdle", { p_event_day: day, p_answer: ans, p_category: hCategory, p_clue: hClue });
+    setHMsg(error ? "Save failed: " + error.message : `Hurdle word saved for ${day}: ${ans} (${ans.length} letters).`);
+  }
 
   async function sendConfirmations() {
     setConfMsg("Loading unverified players…");
@@ -200,7 +212,21 @@ export default function Admin() {
       </div>
 
       <div style={S.card}>
-        <h2 style={{ ...S.h, fontSize: 16, color: "#f2b705" }}>3 · Confirm sign-ups</h2>
+        <h2 style={{ ...S.h, fontSize: 16, color: "#f2b705" }}>3 · Daily Hurdle word</h2>
+        <p style={{ fontSize: 12, opacity: .8 }}>Today's word for the Hurdle game (homepage). Single word, letters only — players see the category + clue, not the word.</p>
+        <input style={S.input} placeholder="ANSWER (e.g. DETTORI)" value={hAnswer} onChange={(e) => setHAnswer(e.target.value)} />
+        <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+          <select style={{ ...S.sel, flex: 1 }} value={hCategory} onChange={(e) => setHCategory(e.target.value)}>
+            {["Horse", "Jockey", "Trainer", "Racecourse", "Racing term"].map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+        <input style={S.input} placeholder="Clue (e.g. Legendary Italian jockey)" value={hClue} onChange={(e) => setHClue(e.target.value)} />
+        <button style={S.btn} onClick={saveHurdleWord}>Save Hurdle word</button>
+        {hMsg && <p style={{ color: "#f2b705", fontSize: 13, marginTop: 8 }}>{hMsg}</p>}
+      </div>
+
+      <div style={S.card}>
+        <h2 style={{ ...S.h, fontSize: 16, color: "#f2b705" }}>4 · Confirm sign-ups</h2>
         <p style={{ fontSize: 12, opacity: .8 }}>Email every unverified player a confirm-entry link (catches sign-ups from before email verification went live). Run once Resend shows Verified.</p>
         <button style={S.btn} onClick={sendConfirmations}>Email unverified players</button>
         {confMsg && <p style={{ color: "#f2b705", fontSize: 13, marginTop: 8 }}>{confMsg}</p>}
