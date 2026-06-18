@@ -52,7 +52,7 @@ export default function Hurdle() {
     const won = current === answer;
     const s = won ? "won" : g.length >= MAX_GUESSES ? "lost" : "playing";
     setGuesses(g); setCurrent(""); setStatus(s); persist(g, s);
-    if (s !== "playing") trackBoth(won ? "Lead" : "ViewContent", { content_name: "hurdle_complete" });
+    if (s !== "playing") trackBoth("ViewContent", { content_name: won ? "hurdle_won" : "hurdle_lost" });
   }, [status, current, len, guesses, answer, persist]);
 
   const onKey = useCallback((k) => {
@@ -89,7 +89,7 @@ export default function Hurdle() {
   async function join() {
     if (!email.includes("@")) return;
     await subscribeNewsletter(email);
-    trackBoth("CompleteRegistration", { email, content_name: "hurdle_newsletter" });
+    trackBoth("Lead", { email, content_name: "hurdle_newsletter" });
     setEmail(""); setJoinMsg("Check your inbox to confirm. New Hurdle every day.");
   }
 
