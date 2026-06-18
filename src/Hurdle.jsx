@@ -21,6 +21,8 @@ export default function Hurdle() {
   const [copied, setCopied] = useState(false);
   const [email, setEmail] = useState("");
   const [joinMsg, setJoinMsg] = useState("");
+  const [clueShown, setClueShown] = useState(false);
+  const [how, setHow] = useState(false);
 
   // Load today's word + restore any in-progress game for this day.
   useEffect(() => {
@@ -109,7 +111,11 @@ export default function Hurdle() {
         .clue{text-align:center;margin:6px 0 16px;}
         .clue .cat{font-family:'Oswald';text-transform:uppercase;letter-spacing:.12em;font-size:12px;color:var(--gold);}
         .clue .txt{font-size:14px;opacity:.85;margin-top:5px;line-height:1.4;}
-        .clue .meta{font-size:11px;opacity:.5;margin-top:5px;letter-spacing:.04em;}
+        .clue .meta{font-size:11px;opacity:.6;margin-top:5px;letter-spacing:.04em;}
+        .clue .link{background:none;border:0;color:var(--gold);font-size:11px;cursor:pointer;text-decoration:underline;padding:0;letter-spacing:.04em;}
+        .howto{font-size:12px;opacity:.8;line-height:1.5;margin:10px auto 0;max-width:340px;background:rgba(244,236,216,.05);border:1px solid var(--line);border-radius:10px;padding:10px 12px;}
+        .reveal{margin-top:10px;background:rgba(242,183,5,.14);color:var(--gold);border:1px solid rgba(242,183,5,.4);border-radius:9px;padding:7px 14px;font-size:12px;font-family:'Oswald';text-transform:uppercase;letter-spacing:.05em;cursor:pointer;}
+        .upsell b{color:var(--gold);}
         .grid{display:grid;gap:6px;margin:4px 0 14px;}
         .grow{display:grid;gap:6px;}
         .grow.shake{animation:sh .42s;}
@@ -149,8 +155,9 @@ export default function Hurdle() {
       <div className="hwrap">
         <div className="clue">
           <div className="cat">Today's Hurdle · {word.category}</div>
-          <div className="txt">{word.clue}</div>
-          <div className="meta">{len} letters · {MAX_GUESSES} guesses</div>
+          <div className="meta">{len} letters · {MAX_GUESSES} guesses · <button className="link" onClick={() => setHow((h) => !h)}>{how ? "hide" : "how to play"}</button></div>
+          {how && <div className="howto">Guess today's racing name. After each guess: 🟩 right letter, right spot · 🟨 in the name, wrong spot · ⬛ not in it. The category above is your hint — reveal the clue if you're stuck.</div>}
+          {clueShown ? <div className="txt">{word.clue}</div> : !done && <button className="reveal" onClick={() => setClueShown(true)}>Reveal clue</button>}
         </div>
 
         <div className="grid" style={{ gridTemplateRows: `repeat(${MAX_GUESSES}, 1fr)`, width: `min(92vw, ${len * 62}px)` }}>
@@ -190,7 +197,7 @@ export default function Hurdle() {
             <p>{status === "won" ? `Solved in ${guesses.length}/${MAX_GUESSES}.` : <>Today's word was <span className="ans">{answer}</span>.</>} Come back tomorrow for a new one.</p>
             <button className="btn" onClick={share}>{copied ? "Copied!" : "Share result 📲"}</button>
             <Link className="btn ghost" to="/ascot">Play The Ascot Seven · win £500 →</Link>
-            <div className="upsell">Want the daily NAP too? <a href="https://horseracingoracleai.com/" target="_blank" rel="noopener">Get today's free pick from Horse Racing Oracle →</a></div>
+            <div className="upsell"><b>1,800+ players</b> already get the daily NAP from Horse Racing Oracle. <a href="https://horseracingoracleai.com/" target="_blank" rel="noopener">Get today's free pick →</a></div>
             {!joinMsg ? (
               <div className="join">
                 <input type="email" inputMode="email" placeholder="you@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />

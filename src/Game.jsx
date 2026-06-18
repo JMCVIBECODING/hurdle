@@ -143,7 +143,7 @@ export default function Game() {
         .lockline{text-align:center;font-size:12px;color:var(--gold);margin:10px 0 0;font-family:'Oswald';letter-spacing:.03em;}
         .social{display:flex;align-items:center;justify-content:center;gap:7px;font-size:12.5px;opacity:.85;margin:0 0 11px;}
         .social .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(34,192,138,.2);}
-        .sec{border-top:1px solid var(--line);margin-top:26px;padding-top:22px;}
+        .sec{border-top:1px solid var(--line);margin-top:36px;padding-top:28px;}
         .sech{font-family:'Oswald';font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:15px;margin:0 0 10px;}
         .secp{font-size:14px;line-height:1.55;opacity:.85;margin:0 0 14px;}
         .secp b{color:var(--gold);}
@@ -152,7 +152,7 @@ export default function Game() {
         .steps li{counter-increment:s;position:relative;padding:0 0 12px 34px;font-size:14px;line-height:1.5;opacity:.9;}
         .steps li:before{content:counter(s);position:absolute;left:0;top:-1px;width:24px;height:24px;border-radius:8px;background:var(--gold);color:#1a1400;font-family:'Oswald';font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;}
         .steps li b{color:var(--cream);}
-        .sec.hro{background:rgba(214,51,108,.06);border:1px solid rgba(214,51,108,.25);border-radius:14px;padding:16px;margin-top:26px;}
+        .sec.hro{background:rgba(214,51,108,.06);border:1px solid rgba(214,51,108,.25);border-radius:14px;padding:18px;margin-top:36px;}
         .sec.hro .cta{display:block;text-align:center;text-decoration:none;}
         .qhead{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 4px;}
         .qno{font-family:'Oswald';color:var(--gold);font-size:13px;letter-spacing:.05em;}
@@ -254,10 +254,10 @@ export default function Game() {
             </div>
             <div className="sec hro">
               <p className="sech">Want the inside track?</p>
-              <p className="secp">Each morning, Horse Racing Oracle publishes its NAP of the day — its single strongest pick of the card, with the form study behind it. Get tomorrow's NAP before it runs.</p>
+              <p className="secp">Each morning, Horse Racing Oracle publishes its NAP of the day — its single strongest pick of the card, with the form study behind it. <b>1,800+ players</b> already get it. Get tomorrow's NAP before it runs.</p>
               <a className="cta" href="https://horseracingoracleai.com/" target="_blank" rel="noopener">Start your £1.99 trial →</a>
             </div>
-            {!racingOver && <button className="cta" style={{ marginTop: 4 }} onClick={() => setStep(0)}>Start picking →</button>}
+            {!racingOver && <button className="cta" style={{ marginTop: 28 }} onClick={() => setStep(0)}>Start picking →</button>}
           </div>
         )}
 
@@ -332,7 +332,7 @@ export default function Game() {
 
                 <div className="upsell">
                   <p className="ut">Want a <b>winner every day</b>?</p>
-                  <p className="ud">Horse Racing Oracle's AI gives you a free pick daily — 71% win, 89% place. Premium tips come with a 14-day money-back guarantee: no winning tip in 14 days, your money back.</p>
+                  <p className="ud"><b>1,800+ players</b> already get Horse Racing Oracle's free daily pick — 71% win, 89% place. Premium tips come with a 14-day money-back guarantee: no winning tip in 14 days, your money back.</p>
                   <a className="cta" href="https://horseracingoracleai.com/" target="_blank" rel="noopener">Get today's free pick →</a>
                 </div>
 
