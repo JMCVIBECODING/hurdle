@@ -211,7 +211,7 @@ export default function Hurdle() {
       </div>
 
       <div className="foot">
-        Hurdle — a free daily racing word game · <Link to="/ascot">The Ascot Seven</Link> · <Link to="/terms">Terms</Link><br />
+        Hurdle — a free daily racing word game · <Link to="/ascot">The Ascot Seven</Link> · <Link to="/terms">Terms</Link> · <Link to="/privacy">Privacy</Link><br />
         18+ · Not a betting product · If gambling affects you, support is at <a href="https://www.begambleaware.org">BeGambleAware.org</a>
       </div>
     </div>

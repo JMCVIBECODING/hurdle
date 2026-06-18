@@ -355,7 +355,7 @@ export default function Game() {
 
       <div className="foot">
         The Ascot Seven — a Hurdle game, powered by <a href="https://horseracingoracleai.com/" target="_blank" rel="noopener">Horse Racing Oracle</a><br />
-        18+ · Free to enter, no purchase necessary · GB · Not a betting product · <Link to="/terms">Prize terms</Link><br />
+        18+ · Free to enter, no purchase necessary · GB · Not a betting product · <Link to="/terms">Prize terms</Link> · <Link to="/privacy">Privacy</Link><br />
         If gambling affects you, support is available at <a href="https://www.begambleaware.org">BeGambleAware.org</a><br />
         © 2026 Hurdle
       </div>

@@ -2,7 +2,7 @@
 
 *Final review recommended against the Gambling Act 2005 (free draw vs lottery) and the CAP Code before publishing. Fill the bracketed placeholders.*
 
-These terms govern the free-to-enter prize competition operated as part of the Ascot Seven game by [HRO / legal entity name], [company number], [registered address] (the "Promoter").
+These terms govern the free-to-enter prize competition operated as part of the Ascot Seven game by J Marston Consulting Ltd, [company number], [registered address] (the "Promoter").
 
 This Competition is a free-to-enter prediction and leaderboard game. It is not a betting product. No stake, deposit, wager, purchase, subscription or paid entry is required or accepted.
 
@@ -66,7 +66,7 @@ This Competition is a free-to-enter prediction and leaderboard game. It is not a
 - The Promoter's decision is final in relation to leaderboard calculations, eligibility and fair-play decisions, subject always to applicable law.
 
 ## 11. Data protection
-- Entrant data is processed in accordance with the Promoter's Privacy Policy [link].
+- Entrant data is processed in accordance with the Promoter's Privacy Policy at /privacy.
 - The Promoter uses entrant data to administer the Competition, operate the Game, verify winners, pay prizes, prevent fraud and comply with legal obligations.
 - Entering the Competition does not require entrants to receive marketing. Marketing preferences can be changed or withdrawn at any time.
 
