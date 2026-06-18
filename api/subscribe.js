@@ -24,8 +24,8 @@ export default async function handler(req, res) {
         email,
         reactivate_existing: false,
         send_welcome_email: false,
-        double_opt_override: "on", // require click-to-confirm
-        utm_source: "ascot-seven",
+        double_opt_override: "off", // single opt-in — active immediately (box-tick is consent)
+        utm_source: "hurdle",
       }),
     });
     const data = await r.json().catch(() => ({}));

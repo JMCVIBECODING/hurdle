@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { hasSupabase } from "./lib/supabase";
 import { loadHurdle, subscribeNewsletter } from "./lib/api";
-import { SAMPLE_HURDLE, MAX_GUESSES, evaluate, keyStates } from "./lib/hurdle";
+import { MAX_GUESSES, evaluate, keyStates, autoWord } from "./lib/hurdle";
 import { todayDay } from "./lib/festival";
 import { trackBoth } from "./lib/analytics";
 
@@ -10,7 +10,7 @@ const ROWS = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
 
 export default function Hurdle() {
   const day = todayDay();
-  const [word, setWord] = useState(SAMPLE_HURDLE);
+  const [word, setWord] = useState(() => autoWord(todayDay()));
   const answer = (word.answer || "").toUpperCase();
   const len = answer.length;
 
@@ -27,7 +27,7 @@ export default function Hurdle() {
     let live = true;
     (async () => {
       const w = hasSupabase ? await loadHurdle(day) : null;
-      const chosen = w && w.answer ? w : SAMPLE_HURDLE;
+      const chosen = w && w.answer ? w : autoWord(day);
       if (!live) return;
       setWord(chosen);
       try {
