@@ -41,7 +41,6 @@ export default function Hurdle() {
   const [email, setEmail] = useState("");
   const [joinMsg, setJoinMsg] = useState("");
   const [clueShown, setClueShown] = useState(false);
-  const [how, setHow] = useState(false);
   const [streak, setStreak] = useState(() => liveStreak(todayDay()).streak);
   const [best, setBest] = useState(() => liveStreak(todayDay()).best);
 
@@ -136,7 +135,9 @@ export default function Hurdle() {
         .tagline{font-family:'Oswald';text-transform:uppercase;letter-spacing:.1em;font-size:13px;color:var(--gold);text-align:center;margin:2px 0 8px;}
         .streakline{text-align:center;font-size:12.5px;font-weight:600;margin:0 0 12px;}
         .clue{text-align:center;margin:6px 0 16px;}
-        .clue .cat{font-family:'Oswald';text-transform:uppercase;letter-spacing:.12em;font-size:12px;color:var(--gold);}
+        .clue .cat{font-family:'Oswald';text-transform:uppercase;letter-spacing:.07em;font-size:17px;color:var(--cream);}
+        .clue .cat b{color:var(--gold);}
+        .rules{font-size:11.5px;opacity:.72;line-height:1.55;margin:9px auto 0;max-width:380px;}
         .clue .txt{font-size:14px;opacity:.85;margin-top:5px;line-height:1.4;}
         .clue .meta{font-size:11px;opacity:.6;margin-top:5px;letter-spacing:.04em;}
         .clue .link{background:none;border:0;color:var(--gold);font-size:11px;cursor:pointer;text-decoration:underline;padding:0;letter-spacing:.04em;}
@@ -183,10 +184,10 @@ export default function Hurdle() {
         <p className="tagline">The Wordle for horse racing fans</p>
         {streak > 0 && <p className="streakline">🔥 {streak}-day streak{best > streak ? ` · best ${best}` : ""}</p>}
         <div className="clue">
-          <div className="cat">Today's Hurdle · {word.category}</div>
-          <div className="meta">{len} letters · {MAX_GUESSES} guesses · <button className="link" onClick={() => setHow((h) => !h)}>{how ? "hide" : "how to play"}</button></div>
-          {how && <div className="howto">Guess today's racing name. After each guess: 🟩 right letter, right spot · 🟨 in the name, wrong spot · ⬛ not in it. The category above is your hint — reveal the clue if you're stuck.</div>}
-          {clueShown ? <div className="txt">{word.clue}</div> : !done && <button className="reveal" onClick={() => setClueShown(true)}>Reveal clue</button>}
+          <div className="cat">Today's topic: <b>{word.category}</b></div>
+          <div className="meta">Guess the {word.category.toLowerCase()} — {len} letters, {MAX_GUESSES} goes</div>
+          <p className="rules">🟩 right letter, right spot &nbsp;·&nbsp; 🟨 in the name, wrong spot &nbsp;·&nbsp; ⬛ not in the name</p>
+          {clueShown ? <div className="txt">{word.clue}</div> : !done && <button className="reveal" onClick={() => setClueShown(true)}>Stuck? Reveal a clue</button>}
         </div>
 
         <div className="grid" style={{ gridTemplateRows: `repeat(${MAX_GUESSES}, 1fr)`, width: `min(92vw, ${len * 62}px)` }}>
