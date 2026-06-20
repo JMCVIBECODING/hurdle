@@ -8,6 +8,25 @@ import { trackBoth } from "./lib/analytics";
 
 const ROWS = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
 
+const yday = (d) => new Date(Date.parse(d + "T00:00:00Z") - 86400000).toISOString().slice(0, 10);
+function readStreak() {
+  try { return JSON.parse(localStorage.getItem("hurdle_streak") || "null") || { streak: 0, best: 0, last: null }; }
+  catch { return { streak: 0, best: 0, last: null }; }
+}
+function liveStreak(today) {
+  const s = readStreak();
+  if (!s.last) return { streak: 0, best: s.best || 0 };
+  return { streak: s.last === today || s.last === yday(today) ? s.streak : 0, best: s.best || 0 };
+}
+function bumpStreak(today) {
+  const s = readStreak();
+  if (s.last === today) return s;
+  const streak = s.last === yday(today) ? s.streak + 1 : 1;
+  const next = { streak, best: Math.max(s.best || 0, streak), last: today };
+  try { localStorage.setItem("hurdle_streak", JSON.stringify(next)); } catch { /* */ }
+  return next;
+}
+
 export default function Hurdle() {
   const day = todayDay();
   const [word, setWord] = useState(() => autoWord(todayDay()));
@@ -23,6 +42,8 @@ export default function Hurdle() {
   const [joinMsg, setJoinMsg] = useState("");
   const [clueShown, setClueShown] = useState(false);
   const [how, setHow] = useState(false);
+  const [streak, setStreak] = useState(() => liveStreak(todayDay()).streak);
+  const [best, setBest] = useState(() => liveStreak(todayDay()).best);
 
   // Load today's word + restore any in-progress game for this day.
   useEffect(() => {
@@ -54,7 +75,11 @@ export default function Hurdle() {
     const won = current === answer;
     const s = won ? "won" : g.length >= MAX_GUESSES ? "lost" : "playing";
     setGuesses(g); setCurrent(""); setStatus(s); persist(g, s);
-    if (s !== "playing") trackBoth("ViewContent", { content_name: won ? "hurdle_won" : "hurdle_lost" });
+    if (s !== "playing") {
+      const ns = bumpStreak(day);
+      setStreak(ns.streak); setBest(ns.best);
+      trackBoth("ViewContent", { content_name: won ? "hurdle_won" : "hurdle_lost" });
+    }
   }, [status, current, len, guesses, answer, persist]);
 
   const onKey = useCallback((k) => {
@@ -80,8 +105,8 @@ export default function Hurdle() {
   const shareText = useMemo(() => {
     const grid = guesses.map((g) => evaluate(g, answer).map((r) => (r === "correct" ? "🟩" : r === "present" ? "🟨" : "⬛")).join("")).join("\n");
     const score = status === "won" ? `${guesses.length}/${MAX_GUESSES}` : `X/${MAX_GUESSES}`;
-    return `HURDLE 🏇 ${word.category} · ${score}\n${grid}\n\nDaily racing word game → https://hurdlegame.app`;
-  }, [guesses, answer, status, word.category]);
+    return `HURDLE 🏇 ${word.category} · ${score}${streak > 0 ? ` · 🔥${streak}` : ""}\n${grid}\n\nThe Wordle for racing fans → https://hurdlegame.app`;
+  }, [guesses, answer, status, word.category, streak]);
 
   async function share() {
     if (navigator.share) { try { await navigator.share({ title: "Hurdle", text: shareText, url: "https://hurdlegame.app" }); return; } catch { /* */ } }
@@ -108,7 +133,8 @@ export default function Hurdle() {
         .hbrand b{color:var(--gold);}
         .htab{font-family:'Oswald';text-transform:uppercase;letter-spacing:.04em;font-size:11.5px;color:#1a1400;background:var(--gold);padding:7px 11px;border-radius:20px;text-decoration:none;}
         .hwrap{flex:1;display:flex;flex-direction:column;align-items:center;max-width:520px;margin:0 auto;width:100%;padding:6px 14px 26px;}
-        .tagline{font-family:'Oswald';text-transform:uppercase;letter-spacing:.1em;font-size:13px;color:var(--gold);text-align:center;margin:2px 0 12px;}
+        .tagline{font-family:'Oswald';text-transform:uppercase;letter-spacing:.1em;font-size:13px;color:var(--gold);text-align:center;margin:2px 0 8px;}
+        .streakline{text-align:center;font-size:12.5px;font-weight:600;margin:0 0 12px;}
         .clue{text-align:center;margin:6px 0 16px;}
         .clue .cat{font-family:'Oswald';text-transform:uppercase;letter-spacing:.12em;font-size:12px;color:var(--gold);}
         .clue .txt{font-size:14px;opacity:.85;margin-top:5px;line-height:1.4;}
@@ -155,6 +181,7 @@ export default function Hurdle() {
 
       <div className="hwrap">
         <p className="tagline">The Wordle for horse racing fans</p>
+        {streak > 0 && <p className="streakline">🔥 {streak}-day streak{best > streak ? ` · best ${best}` : ""}</p>}
         <div className="clue">
           <div className="cat">Today's Hurdle · {word.category}</div>
           <div className="meta">{len} letters · {MAX_GUESSES} guesses · <button className="link" onClick={() => setHow((h) => !h)}>{how ? "hide" : "how to play"}</button></div>
@@ -196,7 +223,7 @@ export default function Hurdle() {
         {done && (
           <div className="result">
             <h2>{status === "won" ? "Got it 🏇" : "So close"}</h2>
-            <p>{status === "won" ? `Solved in ${guesses.length}/${MAX_GUESSES}.` : <>Today's word was <span className="ans">{answer}</span>.</>} Come back tomorrow for a new one.</p>
+            <p>{status === "won" ? `Solved in ${guesses.length}/${MAX_GUESSES}.` : <>Today's word was <span className="ans">{answer}</span>.</>} {streak > 0 ? <>You're on a <b className="ans">🔥 {streak}-day streak</b> — don't break it tomorrow.</> : "Come back tomorrow for a new one."}</p>
             <button className="btn" onClick={share}>{copied ? "Copied!" : "Share result 📲"}</button>
             <Link className="btn ghost" to="/ascot">Play The Ascot Seven · win £500 →</Link>
             <div className="upsell"><b>1,800+ players</b> already get the daily NAP from Horse Racing Oracle. <a href="https://horseracingoracleai.com/" target="_blank" rel="noopener">Get today's free pick →</a></div>
