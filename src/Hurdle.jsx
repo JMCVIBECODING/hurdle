@@ -137,7 +137,12 @@ export default function Hurdle() {
         .clue{text-align:center;margin:6px 0 16px;}
         .clue .cat{font-family:'Oswald';text-transform:uppercase;letter-spacing:.07em;font-size:17px;color:var(--cream);}
         .clue .cat b{color:var(--gold);}
-        .rules{font-size:11.5px;opacity:.72;line-height:1.55;margin:9px auto 0;max-width:380px;}
+        .legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:11px 0 0;font-size:11.5px;opacity:.85;}
+        .legend span{display:inline-flex;align-items:center;gap:6px;}
+        .legend .sw{width:14px;height:14px;border-radius:3px;display:inline-block;}
+        .legend .sw.g{background:var(--green);}
+        .legend .sw.y{background:var(--amber);}
+        .legend .sw.n{background:#16201b;border:1px solid rgba(244,236,216,.25);}
         .clue .txt{font-size:14px;opacity:.85;margin-top:5px;line-height:1.4;}
         .clue .meta{font-size:11px;opacity:.6;margin-top:5px;letter-spacing:.04em;}
         .clue .link{background:none;border:0;color:var(--gold);font-size:11px;cursor:pointer;text-decoration:underline;padding:0;letter-spacing:.04em;}
@@ -157,7 +162,11 @@ export default function Hurdle() {
         .kbd{width:100%;max-width:500px;margin-top:auto;display:flex;flex-direction:column;gap:7px;}
         .krow{display:flex;gap:5px;justify-content:center;}
         .key{flex:1;min-width:0;height:50px;border:0;border-radius:8px;background:rgba(244,236,216,.14);color:var(--cream);font-family:'Oswald';font-weight:600;font-size:15px;text-transform:uppercase;cursor:pointer;}
-        .key.wide{flex:1.5;font-size:11px;}
+        .key.wide{flex:1.5;font-size:12px;}
+        .key.enter{background:var(--gold);color:#1a1400;}
+        .key.enter.ready{animation:pulse 1.1s infinite;}
+        @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(242,183,5,.5)}50%{box-shadow:0 0 0 5px rgba(242,183,5,0)}}
+        .key.del{background:rgba(244,236,216,.18);font-size:18px;}
         .key.correct{background:var(--green);color:#fff;}
         .key.present{background:var(--amber);color:#1a1400;}
         .key.absent{background:#16201b;opacity:.55;}
@@ -186,7 +195,11 @@ export default function Hurdle() {
         <div className="clue">
           <div className="cat">Today's topic: <b>{word.category}</b></div>
           <div className="meta">Guess the {word.category.toLowerCase()} — {len} letters, {MAX_GUESSES} goes</div>
-          <p className="rules">🟩 right letter, right spot &nbsp;·&nbsp; 🟨 in the name, wrong spot &nbsp;·&nbsp; ⬛ not in the name</p>
+          <div className="legend">
+            <span><i className="sw g" /> right spot</span>
+            <span><i className="sw y" /> wrong spot</span>
+            <span><i className="sw n" /> not in name</span>
+          </div>
           {clueShown ? <div className="txt">{word.clue}</div> : !done && <button className="reveal" onClick={() => setClueShown(true)}>Stuck? Reveal a clue</button>}
         </div>
 
@@ -211,11 +224,11 @@ export default function Hurdle() {
           <div className="kbd">
             {ROWS.map((row, i) => (
               <div className="krow" key={i}>
-                {i === 2 && <button className="key wide" onClick={() => onKey("ENTER")}>Enter</button>}
+                {i === 2 && <button className={`key wide enter ${current.length === len ? "ready" : ""}`} onClick={() => onKey("ENTER")}>Enter ↵</button>}
                 {row.split("").map((k) => (
                   <button key={k} className={`key ${kbd[k] || ""}`} onClick={() => onKey(k)}>{k}</button>
                 ))}
-                {i === 2 && <button className="key wide" onClick={() => onKey("DEL")}>Del</button>}
+                {i === 2 && <button className="key wide del" onClick={() => onKey("DEL")}>⌫</button>}
               </div>
             ))}
           </div>
