@@ -32,7 +32,14 @@ export default function Admin() {
     const { data, error } = await supabase.rpc("leaderboard_admin");
     if (error) { setLbMsg("Error: " + error.message); return; }
     setLb(data || []);
-    setLbMsg(`${(data || []).length} scoring player(s). Top 3 confirmed win £250 / £150 / £100.`);
+    setLbMsg(`Festival: ${(data || []).length} scoring player(s). Top 3 confirmed win £250 / £150 / £100.`);
+  }
+  async function loadDaily() {
+    setLbMsg("Loading today…");
+    const { data, error } = await supabase.rpc("daily_leaderboard", { p_day: day });
+    if (error) { setLbMsg("Error: " + error.message); return; }
+    setLb(data || []);
+    setLbMsg(`${day}: ${(data || []).length} player(s) scored. Top confirmed wins £50.`);
   }
 
   async function saveHurdleWord() {
@@ -245,7 +252,10 @@ export default function Admin() {
       <div style={S.card}>
         <h2 style={{ ...S.h, fontSize: 16, color: "#f2b705" }}>5 · Leaderboard &amp; payout</h2>
         <p style={{ fontSize: 12, opacity: .8 }}>Ranked players with codename, email and confirmed status. Only <b>confirmed</b> players are prize-eligible — pay the top 3 confirmed £250 / £150 / £100.</p>
-        <button style={S.btn} onClick={loadLeaderboard}>Load leaderboard</button>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <button style={S.btn} onClick={loadLeaderboard}>Festival leaderboard</button>
+          <button style={{ ...S.btn, ...S.ghost }} onClick={loadDaily}>Today only (£50) · {day}</button>
+        </div>
         {lbMsg && <p style={{ color: "#f2b705", fontSize: 13, margin: "8px 0" }}>{lbMsg}</p>}
         {lb && lb.map((row, i) => (
           <div key={row.email} style={{ padding: "8px 0", borderBottom: "1px solid rgba(244,236,216,.12)" }}>

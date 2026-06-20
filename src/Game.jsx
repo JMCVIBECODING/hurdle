@@ -130,7 +130,9 @@ export default function Game() {
         .h1{font-family:'Oswald';font-weight:700;font-size:30px;line-height:1.05;margin:0 0 8px;letter-spacing:.01em;}
         .lead{font-size:15px;line-height:1.5;opacity:.82;margin:0 0 22px;}
         .lead b{color:var(--gold);}
-        .stats{display:flex;gap:10px;margin:22px 0;}
+        .stats{display:flex;gap:10px;margin:22px 0 14px;}
+        .todayprize{text-align:center;background:rgba(242,183,5,.12);border:1px solid rgba(242,183,5,.35);border-radius:11px;padding:11px;margin:0 0 18px;font-size:13.5px;}
+        .todayprize b{color:var(--gold);font-family:'Oswald';font-size:16px;}
         .stats div{flex:1;text-align:center;background:rgba(244,236,216,.04);border:1px solid var(--line);border-radius:12px;padding:13px 6px;}
         .stats b{display:block;font-family:'Oswald';font-size:24px;color:var(--gold);line-height:1;}
         .stats span{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;opacity:.6;margin-top:5px;}
@@ -222,6 +224,7 @@ export default function Game() {
               <div><b>Leagues</b><span>Beat your mates</span></div>
               <div><b>Free</b><span>To play</span></div>
             </div>
+            <p className="todayprize">🏆 Today only: <b>£50</b> to the day's top scorer</p>
             {racingOver ? (
               <>
                 <p className="lead">Today's racing has finished. Drop your email and we'll send you tomorrow's card and the daily NAP.</p>

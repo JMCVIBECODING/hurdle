@@ -34,6 +34,7 @@ This Competition is a free-to-enter prediction and leaderboard game. It is not a
   - 2nd place: £150
   - 3rd place: £100
   - Total prize fund: £500.
+- The Promoter may also offer a **daily prize of £50** to the eligible player with the highest verified points total on a given day, where that prize is announced in the Game. Daily winners are decided on that day's races only, and a daily prize is separate from the overall event prizes above.
 - The Promoter may vary the prize structure for future event periods only, provided any change is published before the relevant event period begins. The Promoter will not reduce or materially alter prizes already advertised for a live event period except where required by law or due to circumstances genuinely outside the Promoter's reasonable control.
 
 ## 5. Tie-breaks
