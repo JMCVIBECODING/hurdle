@@ -24,6 +24,16 @@ export default function Admin() {
   const [hCategory, setHCategory] = useState("Horse");
   const [hClue, setHClue] = useState("");
   const [hMsg, setHMsg] = useState("");
+  const [lb, setLb] = useState(null);
+  const [lbMsg, setLbMsg] = useState("");
+
+  async function loadLeaderboard() {
+    setLbMsg("Loading…");
+    const { data, error } = await supabase.rpc("leaderboard_admin");
+    if (error) { setLbMsg("Error: " + error.message); return; }
+    setLb(data || []);
+    setLbMsg(`${(data || []).length} scoring player(s). Top 3 confirmed win £250 / £150 / £100.`);
+  }
 
   async function saveHurdleWord() {
     const ans = hAnswer.trim().toUpperCase().replace(/[^A-Z]/g, "");
@@ -230,6 +240,23 @@ export default function Admin() {
         <p style={{ fontSize: 12, opacity: .8 }}>Email every unverified player a confirm-entry link (catches sign-ups from before email verification went live). Run once Resend shows Verified.</p>
         <button style={S.btn} onClick={sendConfirmations}>Email unverified players</button>
         {confMsg && <p style={{ color: "#f2b705", fontSize: 13, marginTop: 8 }}>{confMsg}</p>}
+      </div>
+
+      <div style={S.card}>
+        <h2 style={{ ...S.h, fontSize: 16, color: "#f2b705" }}>5 · Leaderboard &amp; payout</h2>
+        <p style={{ fontSize: 12, opacity: .8 }}>Ranked players with codename, email and confirmed status. Only <b>confirmed</b> players are prize-eligible — pay the top 3 confirmed £250 / £150 / £100.</p>
+        <button style={S.btn} onClick={loadLeaderboard}>Load leaderboard</button>
+        {lbMsg && <p style={{ color: "#f2b705", fontSize: 13, margin: "8px 0" }}>{lbMsg}</p>}
+        {lb && lb.map((row, i) => (
+          <div key={row.email} style={{ padding: "8px 0", borderBottom: "1px solid rgba(244,236,216,.12)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: i < 3 && row.verified ? "#f2b705" : "#f4ecd8" }}>
+              <span>{i + 1}. {row.name} {row.verified ? "✓" : "⚠ unconfirmed"}</span>
+              <span style={{ fontWeight: 700 }}>{row.points} pts</span>
+            </div>
+            <div style={{ fontSize: 12, opacity: .65 }}>{row.email}</div>
+          </div>
+        ))}
+        {lb && lb.length === 0 && <p style={{ fontSize: 13, opacity: .7 }}>No scoring players yet — enter race results first.</p>}
       </div>
 
       {msg && <p style={{ color: "#f2b705", fontSize: 13 }}>{msg}</p>}

@@ -122,6 +122,28 @@ $$;
 revoke all on function public.pending_confirmations() from public, anon;
 grant execute on function public.pending_confirmations() to authenticated;
 
+-- Admin-only: full ranked leaderboard WITH emails + confirmed status, for payout.
+create or replace function public.leaderboard_admin()
+returns table(name text, email text, points int, verified boolean, reached_at timestamptz)
+language sql security definer set search_path = public stable as $$
+  select coalesce(pl.name, split_part(p.email,'@',1)) as name, p.email,
+         sum(case when p.runner_id = r.winning_runner_id then 5
+                  when p.runner_id = r.second_runner_id then 3
+                  when p.runner_id = r.third_runner_id  then 1 else 0 end)::int as points,
+         coalesce(pl.verified, false) as verified,
+         max(p.locked_at) as reached_at
+  from picks p
+  join results r on r.event_day = p.event_day and r.race_id = p.race_id
+  left join players pl on pl.email = p.email
+  group by p.email, coalesce(pl.name, split_part(p.email,'@',1)), coalesce(pl.verified, false)
+  having sum(case when p.runner_id = r.winning_runner_id then 5
+                  when p.runner_id = r.second_runner_id then 3
+                  when p.runner_id = r.third_runner_id  then 1 else 0 end) > 0
+  order by points desc, reached_at asc;
+$$;
+revoke all on function public.leaderboard_admin() from public, anon;
+grant execute on function public.leaderboard_admin() to authenticated;
+
 -- Public live player count for social proof.
 create or replace function public.player_count()
 returns int language sql security definer set search_path = public stable as $$
