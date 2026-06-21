@@ -25,6 +25,8 @@ export default function Game() {
   const [showBoard, setShowBoard] = useState(false);
   const [copied, setCopied] = useState(false);
   const [playerCount, setPlayerCount] = useState(0);
+  const [cardLoaded, setCardLoaded] = useState(null); // null=loading, true=card, false=no game
+  const [overMsg, setOverMsg] = useState("");
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 30000);
@@ -33,7 +35,10 @@ export default function Game() {
 
   useEffect(() => {
     if (!hasSupabase) return;
-    loadCard(day).then((c) => { if (c && c.races?.length) { setRaces(c.races); setNap(c.nap); } });
+    loadCard(day).then((c) => {
+      if (c && c.races?.length) { setRaces(c.races); setNap(c.nap); setCardLoaded(true); }
+      else { setRaces([]); setCardLoaded(false); }   // no card today = festival over / between games
+    });
     loadResults(day).then(setResults);
     loadBoard().then((b) => { if (b && b.length) setBoard(b); });
     loadPlayerCount().then(setPlayerCount);
@@ -43,6 +48,14 @@ export default function Game() {
   const openRaces = useMemo(() => races.filter((r) => !hasStarted(day, r.time, now)), [races, day, now]);
   const racingOver = openRaces.length === 0;
   const firstLock = openRaces[0]?.time;
+  const noGame = hasSupabase && cardLoaded === false; // no card posted = festival over / between games
+
+  async function notify() {
+    if (!email.includes("@")) return;
+    await subscribeNewsletter(email);
+    trackBoth("Lead", { email, content_name: "ascot_notify" });
+    setOverMsg("You're on the list. We'll email you the moment the next game drops.");
+  }
 
   const made = Object.keys(picks).length;
   const napRace = races.find((r) => r.id === nap.raceId);
@@ -213,8 +226,31 @@ export default function Game() {
       </div>
 
       <div className="stage">
+        {/* NO LIVE GAME — festival over / between games */}
+        {noGame && (
+          <div className="screen">
+            <p className="kick">Royal Ascot 2026 · Finished</p>
+            <h1 className="huge">That's a <span className="u">wrap</span>.</h1>
+            <p className="lead" style={{ marginTop: 16 }}>The Ascot Seven festival is done and the £500 winners have been announced. Our next free prediction game is coming soon — drop your email and you'll be first to know.</p>
+            {!overMsg ? (
+              <>
+                <input className="field" type="email" inputMode="email" placeholder="you@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+                <label className="check"><input type="checkbox" checked={optIn} onChange={(e) => setOptIn(e.target.checked)} /><span>Also send me Horse Racing Oracle's free daily NAP. Unsubscribe anytime.</span></label>
+                <button className="cta" disabled={!email.includes("@")} onClick={notify}>Notify me about the next game</button>
+              </>
+            ) : <p className="lead" style={{ color: "var(--gold)" }}>{overMsg}</p>}
+            <Link className="cta" to="/" style={{ display: "block", textAlign: "center", textDecoration: "none", background: "rgba(244,236,216,.1)", color: "var(--cream)", marginTop: 10 }}>Play Hurdle, the daily racing word game →</Link>
+            <div className="sec hro" style={{ marginTop: 28 }}>
+              <p className="sech">Want winners every day?</p>
+              <p className="secp"><b>1,800+ players</b> get Horse Racing Oracle's free daily NAP — 71% win, 89% place.</p>
+              <a className="cta" href="https://horseracingoracleai.com/" target="_blank" rel="noopener">Get today's free pick →</a>
+            </div>
+            {board.length > 0 && <div style={{ marginTop: 22 }}><BoardList board={board} /></div>}
+            <p className="trust" style={{ marginTop: 18 }}>18+ · Free to enter, no purchase necessary · Not a betting product</p>
+          </div>
+        )}
         {/* INTRO */}
-        {step === "intro" && (
+        {!noGame && step === "intro" && (
           <div className="screen">
             <p className="kick">Royal Ascot · 16–20 June · Free to play</p>
             <h1 className="huge">Can you call all<br /><span className="u">seven</span> races?</h1>

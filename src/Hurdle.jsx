@@ -188,7 +188,6 @@ export default function Hurdle() {
 
       <div className="hnav">
         <span className="hbrand">Hur<b>dle</b></span>
-        <Link className="htab" to="/ascot">The Ascot Seven · £500 →</Link>
       </div>
 
       <div className="hwrap">
@@ -244,7 +243,6 @@ export default function Hurdle() {
             <h2>{status === "won" ? "Got it 🏇" : "So close"}</h2>
             <p>{status === "won" ? `Solved in ${guesses.length}/${MAX_GUESSES}.` : <>Today's word was <span className="ans">{answer}</span>.</>} {streak > 0 ? <>You're on a <b className="ans">🔥 {streak}-day streak</b> — don't break it tomorrow.</> : "Come back tomorrow for a new one."}</p>
             <button className="btn" onClick={share}>{copied ? "Copied!" : "Share result 📲"}</button>
-            <Link className="btn ghost" to="/ascot">Play The Ascot Seven · win £500 →</Link>
             <div className="upsell"><b>1,800+ players</b> already get the daily NAP from Horse Racing Oracle. <a href="https://horseracingoracleai.com/" target="_blank" rel="noopener">Get today's free pick →</a></div>
             {!joinMsg ? (
               <div className="join">
