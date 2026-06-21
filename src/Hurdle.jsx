@@ -41,6 +41,7 @@ export default function Hurdle() {
   const [email, setEmail] = useState("");
   const [joinMsg, setJoinMsg] = useState("");
   const [clueShown, setClueShown] = useState(false);
+  const [clue2Shown, setClue2Shown] = useState(false);
   const [streak, setStreak] = useState(() => liveStreak(todayDay()).streak);
   const [best, setBest] = useState(() => liveStreak(todayDay()).best);
 
@@ -143,7 +144,8 @@ export default function Hurdle() {
         .legend .sw.g{background:var(--green);}
         .legend .sw.y{background:var(--amber);}
         .legend .sw.n{background:#16201b;border:1px solid rgba(244,236,216,.25);}
-        .clue .txt{font-size:14px;opacity:.85;margin-top:5px;line-height:1.4;}
+        .clue .txt{font-size:14px;opacity:.85;margin-top:7px;line-height:1.4;}
+        .clue .txt2{color:var(--gold);opacity:1;}
         .clue .meta{font-size:11px;opacity:.6;margin-top:5px;letter-spacing:.04em;}
         .clue .link{background:none;border:0;color:var(--gold);font-size:11px;cursor:pointer;text-decoration:underline;padding:0;letter-spacing:.04em;}
         .howto{font-size:12px;opacity:.8;line-height:1.5;margin:10px auto 0;max-width:340px;background:rgba(244,236,216,.05);border:1px solid var(--line);border-radius:10px;padding:10px 12px;}
@@ -200,7 +202,10 @@ export default function Hurdle() {
             <span><i className="sw y" /> wrong spot</span>
             <span><i className="sw n" /> not in name</span>
           </div>
-          {clueShown ? <div className="txt">{word.clue}</div> : !done && <button className="reveal" onClick={() => setClueShown(true)}>Stuck? Reveal a clue</button>}
+          {clueShown && <div className="txt">{word.clue}</div>}
+          {clue2Shown && <div className="txt txt2">{word.clue2}</div>}
+          {!done && !clueShown && <button className="reveal" onClick={() => setClueShown(true)}>Stuck? Reveal a clue</button>}
+          {!done && clueShown && !clue2Shown && word.clue2 && guesses.length >= 4 && <button className="reveal" onClick={() => setClue2Shown(true)}>Need a bigger hint?</button>}
         </div>
 
         <div className="grid" style={{ gridTemplateRows: `repeat(${MAX_GUESSES}, 1fr)`, width: `min(92vw, ${len * 62}px)` }}>
