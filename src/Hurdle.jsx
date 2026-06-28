@@ -40,6 +40,8 @@ export default function Hurdle() {
   const [copied, setCopied] = useState(false);
   const [email, setEmail] = useState("");
   const [joinMsg, setJoinMsg] = useState("");
+  const [joined, setJoined] = useState(false);
+  const [barDismissed, setBarDismissed] = useState(false);
   const [clueShown, setClueShown] = useState(false);
   const [clue2Shown, setClue2Shown] = useState(false);
   const [streak, setStreak] = useState(() => liveStreak(todayDay()).streak);
@@ -120,7 +122,8 @@ export default function Hurdle() {
     // optimises whether it targets CompleteRegistration or Lead.
     trackBoth("CompleteRegistration", { email, content_name: "hurdle_newsletter" });
     trackBoth("Lead", { email, content_name: "hurdle_newsletter" });
-    setEmail(""); setJoinMsg("You're in 🏇 New Hurdle every day, plus today's NAP in your inbox.");
+    setEmail(""); setJoined(true);
+    setJoinMsg("You're in 🏇 New Hurdle every day, plus today's NAP in your inbox.");
   }
 
   return (
@@ -183,6 +186,14 @@ export default function Hurdle() {
         .btn.ghost{background:rgba(244,236,216,.1);color:var(--cream);margin-top:8px;}
         .join{display:flex;gap:7px;margin-top:12px;}
         .join input{flex:1;min-width:0;padding:13px;border-radius:10px;border:0;font-size:14px;}
+        .capbar{position:relative;width:100%;max-width:440px;margin:14px 0 4px;background:rgba(242,183,5,.1);border:1px solid rgba(242,183,5,.35);border-radius:12px;padding:13px 14px;}
+        .capbar .capt{font-size:12.5px;line-height:1.4;margin:0 0 9px;opacity:.92;padding-right:16px;}
+        .capbar .capt b{color:var(--gold);}
+        .capbar .caprow{display:flex;gap:7px;}
+        .capbar input{flex:1;min-width:0;padding:11px;border-radius:9px;border:0;font-size:14px;}
+        .capbar .caprow button{background:var(--gold);color:#1a1400;border:0;border-radius:9px;padding:0 16px;font-family:'Oswald';font-weight:600;text-transform:uppercase;font-size:13px;cursor:pointer;}
+        .capbar .caprow button:disabled{opacity:.4;cursor:not-allowed;}
+        .capx{position:absolute;top:6px;right:9px;background:none;border:0;color:var(--cream);opacity:.5;font-size:18px;line-height:1;cursor:pointer;}
         .upsell{background:rgba(214,51,108,.07);border:1px solid rgba(214,51,108,.25);border-radius:12px;padding:13px;margin-top:12px;font-size:13px;line-height:1.45;}
         .upsell a{color:var(--gold);font-weight:600;}
         .foot{text-align:center;font-size:10.5px;opacity:.45;padding:16px;line-height:1.6;}
@@ -227,6 +238,17 @@ export default function Hurdle() {
           })}
         </div>
 
+        {!done && !joined && guesses.length >= 1 && !barDismissed && (
+          <div className="capbar">
+            <button className="capx" onClick={() => setBarDismissed(true)} aria-label="Dismiss">×</button>
+            <p className="capt">Enjoying it? Get a <b>new Hurdle daily</b> + today's free NAP by email.</p>
+            <div className="caprow">
+              <input type="email" inputMode="email" placeholder="you@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <button onClick={join} disabled={!email.includes("@")}>Get it</button>
+            </div>
+          </div>
+        )}
+
         {!done && (
           <div className="kbd">
             {ROWS.map((row, i) => (
@@ -247,7 +269,7 @@ export default function Hurdle() {
             <p>{status === "won" ? `Solved in ${guesses.length}/${MAX_GUESSES}.` : <>Today's word was <span className="ans">{answer}</span>.</>} {streak > 0 ? <>You're on a <b className="ans">🔥 {streak}-day streak</b> — don't break it tomorrow.</> : "Come back tomorrow for a new one."}</p>
             <button className="btn" onClick={share}>{copied ? "Copied!" : "Share result 📲"}</button>
             <div className="upsell"><b>1,800+ players</b> already get the daily NAP from Horse Racing Oracle. <a href="https://horseracingoracleai.com/" target="_blank" rel="noopener">Get today's free pick →</a></div>
-            {!joinMsg ? (
+            {!joined ? (
               <div className="join">
                 <input type="email" inputMode="email" placeholder="you@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
                 <button className="btn" style={{ width: "auto" }} onClick={join} disabled={!email.includes("@")}>Get it daily</button>
