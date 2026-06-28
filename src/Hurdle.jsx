@@ -116,8 +116,11 @@ export default function Hurdle() {
   async function join() {
     if (!email.includes("@")) return;
     await subscribeNewsletter(email);
+    // Form submit = newsletter opt-in (added to Beehiiv). Fire both so the ad set
+    // optimises whether it targets CompleteRegistration or Lead.
+    trackBoth("CompleteRegistration", { email, content_name: "hurdle_newsletter" });
     trackBoth("Lead", { email, content_name: "hurdle_newsletter" });
-    setEmail(""); setJoinMsg("Check your inbox to confirm. New Hurdle every day.");
+    setEmail(""); setJoinMsg("You're in 🏇 New Hurdle every day, plus today's NAP in your inbox.");
   }
 
   return (
