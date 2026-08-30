@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { hasSupabase } from "./lib/supabase";
-import { loadHurdle, subscribeNewsletter } from "./lib/api";
+import { loadHurdle, subscribeNewsletter, logPlay, logSignup } from "./lib/api";
 import { MAX_GUESSES, evaluate, keyStates, autoWord } from "./lib/hurdle";
 import { todayDay } from "./lib/festival";
 import { trackBoth } from "./lib/analytics";
@@ -81,8 +81,9 @@ export default function Hurdle() {
       const ns = bumpStreak(day);
       setStreak(ns.streak); setBest(ns.best);
       trackBoth("ViewContent", { content_name: won ? "hurdle_won" : "hurdle_lost" });
+      logPlay(day, word.category, answer, won, g.length, ns.streak);
     }
-  }, [status, current, len, guesses, answer, persist]);
+  }, [status, current, len, guesses, answer, persist, day, word.category]);
 
   const onKey = useCallback((k) => {
     if (status !== "playing") return;
@@ -122,6 +123,7 @@ export default function Hurdle() {
     // optimises whether it targets CompleteRegistration or Lead.
     trackBoth("CompleteRegistration", { email, content_name: "hurdle_newsletter" });
     trackBoth("Lead", { email, content_name: "hurdle_newsletter" });
+    logSignup(email, done ? "hurdle_result" : "hurdle_midgame");
     setEmail(""); setJoined(true);
     setJoinMsg("You're in 🏇 New Hurdle every day, plus today's NAP in your inbox.");
   }

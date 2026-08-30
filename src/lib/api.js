@@ -104,6 +104,34 @@ export async function saveHurdle(day, answer, category, clue) {
   return { ok: !error, error: error?.message };
 }
 
+// Stable anonymous device id for play analytics (no cookies, no PII).
+export function deviceId() {
+  try {
+    let id = localStorage.getItem("hurdle_device");
+    if (!id) {
+      id = (crypto.randomUUID?.() || String(Date.now()) + Math.random().toString(36).slice(2));
+      localStorage.setItem("hurdle_device", id);
+    }
+    return id;
+  } catch { return null; }
+}
+
+// Log a finished Hurdle game (fire-and-forget; one row per device per day).
+export function logPlay(day, category, answer, won, guesses, streak) {
+  if (!hasSupabase) return;
+  supabase.rpc("log_play", {
+    p_device: deviceId(), p_day: day, p_category: category, p_answer: answer,
+    p_won: won, p_guesses: guesses, p_streak: streak,
+  }).then(() => {}, () => {});
+}
+
+// Record an email signup tied to this device (funnel: played -> subscribed).
+export function logSignup(email, source) {
+  if (!hasSupabase) return;
+  supabase.rpc("log_signup", { p_device: deviceId(), p_email: email, p_source: source })
+    .then(() => {}, () => {});
+}
+
 // Live player count for social proof (real, via SECURITY DEFINER count fn).
 export async function loadPlayerCount() {
   if (!hasSupabase) return 0;

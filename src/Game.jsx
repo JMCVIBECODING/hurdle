@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { hasSupabase } from "./lib/supabase";
-import { loadCard, loadResults, loadBoard, lockEntry, subscribeNewsletter, pickPoints, loadPlayerCount } from "./lib/api";
+import { loadCard, loadResults, loadBoard, lockEntry, subscribeNewsletter, pickPoints, loadPlayerCount, logSignup } from "./lib/api";
 import { SAMPLE_RACES, SAMPLE_NAP, SEED_BOARD } from "./lib/sampleCard";
 import { todayDay, hasStarted } from "./lib/festival";
 import { trackBoth } from "./lib/analytics";
@@ -54,6 +54,7 @@ export default function Game() {
     if (!email.includes("@")) return;
     await subscribeNewsletter(email);
     trackBoth("Lead", { email, content_name: "ascot_notify" });
+    logSignup(email, "ascot_notify");
     setOverMsg("You're on the list. We'll email you the moment the next game drops.");
   }
 
@@ -81,6 +82,7 @@ export default function Game() {
     if (!res.ok) return;
     trackBoth("Lead", { email, content_name: "ascot_seven_entry" });
     if (optIn) trackBoth("CompleteRegistration", { email, content_name: "newsletter" });
+    logSignup(email, "ascot_entry");
     setVerified(res.verified);
     setMyName(res.name || "");
     setLocked(true);
