@@ -44,23 +44,20 @@ create table if not exists public.results (
 );
 
 -- 2. LEADERBOARD VIEW -------------------------------------------------------
--- Points: win 5, second 3, third 1.
+-- Points: win 5, second 3, third 1. Public view: NO email column (privacy).
 create or replace view public.leaderboard as
-select p.email,
-       coalesce(pl.name, split_part(p.email,'@',1)) as name,
+select coalesce(pl.name, 'Player') as name,
        sum(case when p.runner_id = r.winning_runner_id then 5
                 when p.runner_id = r.second_runner_id then 3
-                when p.runner_id = r.third_runner_id  then 1
-                else 0 end)::int as points,
+                when p.runner_id = r.third_runner_id  then 1 else 0 end)::int as points,
        max(p.locked_at) as reached_at
 from public.picks p
 join public.results r on r.event_day = p.event_day and r.race_id = p.race_id
 join public.players pl on pl.email = p.email and pl.verified = true
-group by p.email, coalesce(pl.name, split_part(p.email,'@',1))
+group by pl.name
 having sum(case when p.runner_id = r.winning_runner_id then 5
                 when p.runner_id = r.second_runner_id then 3
-                when p.runner_id = r.third_runner_id  then 1
-                else 0 end) > 0
+                when p.runner_id = r.third_runner_id  then 1 else 0 end) > 0
 order by points desc, reached_at asc;
 
 -- 3. RLS: reads only (writes happen via the functions below) ----------------
