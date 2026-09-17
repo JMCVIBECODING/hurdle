@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { hasSupabase } from "./lib/supabase";
 import { loadHurdle, subscribeNewsletter, logPlay, logSignup } from "./lib/api";
-import { MAX_GUESSES, evaluate, keyStates, autoWord } from "./lib/hurdle";
+import { MAX_GUESSES, evaluate, keyStates, autoWord, localStats } from "./lib/hurdle";
 import { todayDay } from "./lib/festival";
 import { trackBoth } from "./lib/analytics";
 
@@ -44,6 +44,7 @@ export default function Hurdle() {
   const [barDismissed, setBarDismissed] = useState(false);
   const [clueShown, setClueShown] = useState(false);
   const [clue2Shown, setClue2Shown] = useState(false);
+  const [statsOpen, setStatsOpen] = useState(false);
   const [streak, setStreak] = useState(() => liveStreak(todayDay()).streak);
   const [best, setBest] = useState(() => liveStreak(todayDay()).best);
 
@@ -198,13 +199,53 @@ export default function Hurdle() {
         .capx{position:absolute;top:6px;right:9px;background:none;border:0;color:var(--cream);opacity:.5;font-size:18px;line-height:1;cursor:pointer;}
         .upsell{background:rgba(214,51,108,.07);border:1px solid rgba(214,51,108,.25);border-radius:12px;padding:13px;margin-top:12px;font-size:13px;line-height:1.45;}
         .upsell a{color:var(--gold);font-weight:600;}
+        .statsbtn{background:rgba(244,236,216,.1);border:1px solid var(--line);color:var(--cream);border-radius:18px;padding:7px 13px;font-family:'Oswald';text-transform:uppercase;letter-spacing:.05em;font-size:11px;cursor:pointer;}
+        .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:60;padding:18px;}
+        .mcard{position:relative;background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:22px;width:100%;max-width:360px;}
+        .mx{position:absolute;top:8px;right:12px;background:none;border:0;color:var(--cream);opacity:.6;font-size:22px;cursor:pointer;}
+        .mh{font-family:'Oswald';text-transform:uppercase;letter-spacing:.05em;font-size:18px;margin:0 0 14px;}
+        .mrow{display:flex;gap:8px;margin-bottom:16px;}
+        .mrow div{flex:1;text-align:center;background:rgba(244,236,216,.05);border:1px solid var(--line);border-radius:10px;padding:10px 4px;}
+        .mrow b{display:block;font-family:'Oswald';font-size:22px;color:var(--gold);line-height:1;}
+        .mrow span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.05em;opacity:.6;margin-top:4px;}
+        .mlab{font-family:'Oswald';text-transform:uppercase;letter-spacing:.07em;font-size:11px;opacity:.7;margin:0 0 8px;}
+        .mbar{display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+        .mbar .mn{font-family:'Oswald';font-size:12px;opacity:.7;width:10px;}
+        .mfill{background:var(--green);color:#fff;font-size:11px;font-weight:700;border-radius:4px;padding:3px 7px;text-align:right;min-width:22px;}
         .foot{text-align:center;font-size:10.5px;opacity:.45;padding:16px;line-height:1.6;}
         .foot a{color:inherit;}
       `}</style>
 
       <div className="hnav">
         <span className="hbrand">Hur<b>dle</b></span>
+        <button className="statsbtn" onClick={() => setStatsOpen(true)}>📊 Stats</button>
       </div>
+
+      {statsOpen && (() => {
+        const st = localStats();
+        const maxDist = Math.max(1, ...Object.values(st.dist));
+        return (
+          <div className="modal" onClick={() => setStatsOpen(false)}>
+            <div className="mcard" onClick={(e) => e.stopPropagation()}>
+              <button className="mx" onClick={() => setStatsOpen(false)}>×</button>
+              <h2 className="mh">Your stats</h2>
+              <div className="mrow">
+                <div><b>{st.played}</b><span>Played</span></div>
+                <div><b>{st.pct}%</b><span>Win rate</span></div>
+                <div><b>{st.streak}</b><span>Streak</span></div>
+                <div><b>{st.best}</b><span>Best</span></div>
+              </div>
+              <p className="mlab">Guess distribution</p>
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <div className="mbar" key={n}>
+                  <span className="mn">{n}</span>
+                  <div className="mfill" style={{ width: `${Math.max(7, (100 * st.dist[n]) / maxDist)}%` }}>{st.dist[n]}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
 
       <div className="hwrap">
         <p className="tagline">The Wordle for horse racing fans</p>
