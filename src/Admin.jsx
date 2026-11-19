@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase, hasSupabase } from "./lib/supabase";
 import { SAMPLE_RACES, SAMPLE_NAP } from "./lib/sampleCard";
 import { todayDay } from "./lib/festival";
+import { loadTips, saveTip, settleTip } from "./lib/api";
 
 const TEMPLATE = JSON.stringify(SAMPLE_RACES, null, 2);
 
@@ -26,6 +27,33 @@ export default function Admin() {
   const [hMsg, setHMsg] = useState("");
   const [lb, setLb] = useState(null);
   const [lbMsg, setLbMsg] = useState("");
+  const [tipDate, setTipDate] = useState(todayDay());
+  const [tipHorse, setTipHorse] = useState("");
+  const [tipCourse, setTipCourse] = useState("");
+  const [tipTime, setTipTime] = useState("");
+  const [tipOdds, setTipOdds] = useState("");
+  const [tipMsg, setTipMsg] = useState("");
+  const [tipList, setTipList] = useState([]);
+
+  // '5/2' -> 3.5 decimal for P&L maths; blank if unparseable.
+  function oddsToDecimal(s) {
+    const m = /^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)$/.exec((s || "").trim());
+    if (m) return 1 + Number(m[1]) / Number(m[2]);
+    const n = Number((s || "").trim());
+    return n > 1 ? n : null;
+  }
+  async function refreshTips() { setTipList(await loadTips(14)); }
+  async function saveTipRow() {
+    if (!tipHorse.trim()) { setTipMsg("Need a horse name."); return; }
+    const r = await saveTip(tipDate, tipHorse.trim(), tipCourse.trim(), tipTime.trim(), tipOdds.trim(), oddsToDecimal(tipOdds));
+    setTipMsg(r.ok ? `Saved: ${tipHorse.trim()} (${tipDate}) — now live on /record.` : "Save failed: " + r.error);
+    if (r.ok) { setTipHorse(""); setTipCourse(""); setTipTime(""); setTipOdds(""); refreshTips(); }
+  }
+  async function settleTipRow(date, result) {
+    const r = await settleTip(date, result);
+    setTipMsg(r.ok ? `${date} settled: ${result}.` : "Settle failed: " + r.error);
+    if (r.ok) refreshTips();
+  }
 
   async function loadLeaderboard() {
     setLbMsg("Loading…");
@@ -77,7 +105,7 @@ export default function Admin() {
 
   // Once logged in, auto-load today's saved card so the Results dropdowns show
   // the real runners (not the sample template).
-  useEffect(() => { if (session && hasSupabase) loadDay(); /* eslint-disable-next-line */ }, [session]);
+  useEffect(() => { if (session && hasSupabase) { loadDay(); refreshTips(); } /* eslint-disable-next-line */ }, [session]);
 
   async function login(e) {
     e.preventDefault();
@@ -240,6 +268,31 @@ export default function Admin() {
         <input style={S.input} placeholder="Clue (e.g. Legendary Italian jockey)" value={hClue} onChange={(e) => setHClue(e.target.value)} />
         <button style={S.btn} onClick={saveHurdleWord}>Save Hurdle word</button>
         {hMsg && <p style={{ color: "#f2b705", fontSize: 13, marginTop: 8 }}>{hMsg}</p>}
+      </div>
+
+      <div style={S.card}>
+        <h2 style={{ ...S.h, fontSize: 16, color: "#f2b705" }}>HRO · NAP ledger</h2>
+        <p style={{ fontSize: 12, opacity: .8 }}>Enter the daily NAP, then settle it after the race. Everything here is PUBLIC at hurdlegame.app/record — losers stay on the board, that's the point.</p>
+        <input style={S.input} type="date" value={tipDate} onChange={(e) => setTipDate(e.target.value)} />
+        <input style={S.input} placeholder="Horse (e.g. Constitution Hill)" value={tipHorse} onChange={(e) => setTipHorse(e.target.value)} />
+        <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+          <input style={{ ...S.input, marginBottom: 0 }} placeholder="Course" value={tipCourse} onChange={(e) => setTipCourse(e.target.value)} />
+          <input style={{ ...S.input, marginBottom: 0, width: 80, flex: "none" }} placeholder="Time" value={tipTime} onChange={(e) => setTipTime(e.target.value)} />
+          <input style={{ ...S.input, marginBottom: 0, width: 80, flex: "none" }} placeholder="Odds 5/2" value={tipOdds} onChange={(e) => setTipOdds(e.target.value)} />
+        </div>
+        <button style={S.btn} onClick={saveTipRow}>Save NAP</button>
+        {tipMsg && <p style={{ color: "#f2b705", fontSize: 13, marginTop: 8 }}>{tipMsg}</p>}
+        {tipList.map((t) => (
+          <div key={t.tip_date} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid rgba(244,236,216,.12)", fontSize: 13 }}>
+            <span style={{ opacity: .6, width: 78 }}>{t.tip_date}</span>
+            <span style={{ flex: 1 }}>{t.horse} <span style={{ opacity: .5 }}>{t.odds || ""}</span></span>
+            {t.result === "pending" ? (
+              ["won", "placed", "lost", "void"].map((r) => (
+                <button key={r} style={{ ...S.btn, ...S.ghost, padding: "4px 8px", fontSize: 11 }} onClick={() => settleTipRow(t.tip_date, r)}>{r}</button>
+              ))
+            ) : <span style={{ color: t.result === "won" ? "#7dc87d" : t.result === "lost" ? "#d98a8a" : "#f2b705", fontWeight: 700, textTransform: "uppercase", fontSize: 11 }}>{t.result}</span>}
+          </div>
+        ))}
       </div>
 
       <div style={S.card}>

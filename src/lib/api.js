@@ -139,18 +139,52 @@ export async function loadPlayerCount() {
   return error ? 0 : (data || 0);
 }
 
-// Optional newsletter opt-in. Posts to the Vercel function, which forces Beehiiv
-// double opt-in. Fire-and-forget: never blocks or fails the lock (and 404s
-// harmlessly in local dev where serverless functions don't run).
-export async function subscribeNewsletter(email) {
+// Optional newsletter opt-in. Posts to the Vercel function. `fields` is an
+// optional {name: value} map stored as Beehiiv custom fields (quiz answers).
+export async function subscribeNewsletter(email, fields, utm) {
   try {
     const r = await fetch("/api/subscribe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, fields, utm }),
     });
     return await r.json().catch(() => ({ ok: r.ok }));
   } catch {
     return { ok: false };
   }
+}
+
+// --- HRO tips ledger --------------------------------------------------------
+
+// Public: all published tips, newest first.
+export async function loadTips(limit = 60) {
+  if (!hasSupabase) return [];
+  const { data, error } = await supabase
+    .from("tips")
+    .select("tip_date, horse, course, race_time, odds, result")
+    .order("tip_date", { ascending: false })
+    .limit(limit);
+  return error ? [] : data || [];
+}
+
+// Public: computed record { tips, wins, places, strike_pct, pl_points }.
+export async function loadTrackRecord(days = 90) {
+  if (!hasSupabase) return null;
+  const { data, error } = await supabase.rpc("track_record", { p_days: days });
+  return error ? null : data;
+}
+
+// Admin: save today's NAP into the ledger.
+export async function saveTip(date, horse, course, time, odds, oddsDecimal) {
+  const { error } = await supabase.rpc("save_tip", {
+    p_date: date, p_horse: horse, p_course: course, p_time: time,
+    p_odds: odds, p_odds_decimal: oddsDecimal,
+  });
+  return { ok: !error, error: error?.message };
+}
+
+// Admin: settle a tip ('won' | 'placed' | 'lost' | 'void').
+export async function settleTip(date, result) {
+  const { error } = await supabase.rpc("settle_tip", { p_date: date, p_result: result });
+  return { ok: !error, error: error?.message };
 }

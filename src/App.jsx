@@ -6,6 +6,8 @@ import Terms from "./Terms";
 import Privacy from "./Privacy";
 import Admin from "./Admin";
 import Verify from "./Verify";
+import Quiz from "./Quiz";
+import Record from "./Record";
 import ConsentBanner from "./ConsentBanner";
 import { loadPixel, declined } from "./lib/analytics";
 
@@ -22,6 +24,8 @@ export default function App() {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/verify" element={<Verify />} />
+        <Route path="/quiz" element={<Quiz />} />
+        <Route path="/record" element={<Record />} />
       </Routes>
       <ConsentBanner />
     </BrowserRouter>

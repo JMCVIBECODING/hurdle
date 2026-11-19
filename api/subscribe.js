@@ -10,6 +10,14 @@ export default async function handler(req, res) {
   if (!email || typeof email !== "string" || !email.includes("@")) {
     return res.status(400).json({ error: "invalid_email" });
   }
+  // Optional quiz answers etc. -> Beehiiv custom fields (string values only).
+  const rawFields = (req.body && req.body.fields) || {};
+  const custom_fields = Object.entries(rawFields)
+    .filter(([k, v]) => typeof k === "string" && typeof v === "string" && k.length <= 40 && v.length <= 200)
+    .slice(0, 8)
+    .map(([name, value]) => ({ name, value }));
+  const utm = typeof req.body?.utm === "string" && /^[a-z0-9_-]{1,32}$/.test(req.body.utm)
+    ? req.body.utm : "hurdle";
 
   const key = process.env.BEEHIIV_API_KEY;
   const pub = process.env.BEEHIIV_PUBLICATION_ID;
@@ -25,7 +33,8 @@ export default async function handler(req, res) {
         reactivate_existing: false,
         send_welcome_email: false,
         double_opt_override: "off", // single opt-in — active immediately (box-tick is consent)
-        utm_source: "hurdle",
+        utm_source: utm,
+        ...(custom_fields.length ? { custom_fields } : {}),
       }),
     });
     const data = await r.json().catch(() => ({}));
