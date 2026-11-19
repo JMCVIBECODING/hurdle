@@ -45,7 +45,7 @@ export default function Record() {
 
       <div className="brand">Horse Racing <b>Oracle</b></div>
       <h1>The record. All of it.</h1>
-      <p className="sub">Every NAP we publish stays published — winners and losers. If a tipster won't show you his losers, he's showing you a story.</p>
+      <p className="sub">Every tip we publish stays published — winners and losers. If a tipster won't show you his losers, he's showing you a story.</p>
 
       {rec && rec.tips > 0 && (
         <div className="stats">
@@ -61,7 +61,7 @@ export default function Record() {
         {tips && tips.map((t) => {
           const [label, color] = BADGE[t.result] || BADGE.pending;
           return (
-            <div className="tip" key={t.tip_date}>
+            <div className="tip" key={t.id}>
               <span className="d">{fmt(t.tip_date)}</span>
               <span className="h">{t.horse}<br /><span className="m">{[t.course, t.race_time, t.odds].filter(Boolean).join(" · ")}</span></span>
               <span className="b" style={{ background: color }}>{label}</span>

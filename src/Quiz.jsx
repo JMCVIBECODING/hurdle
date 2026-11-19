@@ -117,7 +117,7 @@ export default function Quiz() {
           <>
             <p className="kicker">Your result is ready</p>
             <h1>Where do we send your punter profile?</h1>
-            <p className="sub">You'll also get today's free NAP — the one selection our model rates strongest.</p>
+            <p className="sub">You'll also get today's free tips from the model.</p>
             <div className="row">
               <input type="email" inputMode="email" placeholder="you@email.com" value={email}
                      onChange={(e) => setEmail(e.target.value)}
@@ -140,15 +140,15 @@ export default function Quiz() {
                 ? "You say you're up and can prove it. Respect. See if the model beats your edge."
                 : "You're not losing because you're stupid. You're losing because you're playing machines with a gut."}
               {" "}Our AI model studies every race, every morning — form, going, trainer and jockey patterns — then
-              publishes <b>one disciplined selection a day</b>. Every pick stays on the record, losers included.
+              publishes <b>a short card of selections each day — never a flood</b>. Every pick stays on the record, losers included.
             </p>
             <a className="cta" href="https://horseracingoracleai.com/?utm_source=quiz&utm_medium=results" >
-              See the model &amp; today's NAP →
+              See the model &amp; today's tips →
             </a>
             <a className="cta" style={{ background: "rgba(244,236,216,.1)", color: "#f4ecd8" }} href="/record">
               Check our full track record (losers included)
             </a>
-            <p className="small">Your first NAP email lands tomorrow morning.</p>
+            <p className="small">Your first tips email lands tomorrow morning.</p>
           </>
         )}
       </div>

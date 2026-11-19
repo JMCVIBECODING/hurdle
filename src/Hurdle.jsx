@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { hasSupabase } from "./lib/supabase";
-import { loadHurdle, subscribeNewsletter, logPlay, logSignup } from "./lib/api";
+import { loadHurdle, subscribeNewsletter, logPlay, logSignup, loadTrackRecord } from "./lib/api";
 import { MAX_GUESSES, evaluate, keyStates, autoWord, localStats } from "./lib/hurdle";
 import { todayDay } from "./lib/festival";
 import { trackBoth } from "./lib/analytics";
@@ -45,6 +45,15 @@ export default function Hurdle() {
   const [clueShown, setClueShown] = useState(false);
   const [clue2Shown, setClue2Shown] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
+  // Challenge link (?c=N in a shared result) and the live NAP bridge card.
+  const [challenge] = useState(() => {
+    try {
+      const n = parseInt(new URLSearchParams(window.location.search).get("c"), 10);
+      return n >= 1 && n <= MAX_GUESSES ? n : null;
+    } catch { return null; }
+  });
+  const [rec7, setRec7] = useState(null); // 7-day track record for the bridge card
+  useEffect(() => { loadTrackRecord(7).then(setRec7).catch(() => {}); }, []);
   const [streak, setStreak] = useState(() => liveStreak(todayDay()).streak);
   const [best, setBest] = useState(() => liveStreak(todayDay()).best);
 
@@ -109,7 +118,9 @@ export default function Hurdle() {
   const shareText = useMemo(() => {
     const grid = guesses.map((g) => evaluate(g, answer).map((r) => (r === "correct" ? "🟩" : r === "present" ? "🟨" : "⬛")).join("")).join("\n");
     const score = status === "won" ? `${guesses.length}/${MAX_GUESSES}` : `X/${MAX_GUESSES}`;
-    return `HURDLE 🏇 ${word.category} · ${score}${streak > 0 ? ` · 🔥${streak}` : ""}\n${grid}\n\nThe Wordle for racing fans → https://hurdlegame.app`;
+    const n = status === "won" ? guesses.length : 0;
+    const link = n ? `https://hurdlegame.app/?c=${n}` : "https://hurdlegame.app";
+    return `HURDLE 🏇 ${word.category} · ${score}${streak > 0 ? ` · 🔥${streak}` : ""}\n${grid}\n\n${n ? "Beat me → " : "The Wordle for racing fans → "}${link}`;
   }, [guesses, answer, status, word.category, streak]);
 
   async function share() {
@@ -144,6 +155,7 @@ export default function Hurdle() {
         .hwrap{flex:1;display:flex;flex-direction:column;align-items:center;max-width:520px;margin:0 auto;width:100%;padding:6px 14px 26px;}
         .tagline{font-family:'Oswald';text-transform:uppercase;letter-spacing:.1em;font-size:13px;color:var(--gold);text-align:center;margin:2px 0 8px;}
         .streakline{text-align:center;font-size:12.5px;font-weight:600;margin:0 0 12px;}
+        .chal{text-align:center;font-size:13px;font-weight:600;margin:0 0 12px;color:var(--gold);}
         .clue{text-align:center;margin:6px 0 16px;}
         .clue .cat{font-family:'Oswald';text-transform:uppercase;letter-spacing:.07em;font-size:17px;color:var(--cream);}
         .clue .cat b{color:var(--gold);}
@@ -249,6 +261,7 @@ export default function Hurdle() {
 
       <div className="hwrap">
         <p className="tagline">The Wordle for horse racing fans</p>
+        {challenge && !done && <p className="chal">🥊 A mate solved today's in <b>{challenge}</b>. Beat them.</p>}
         {streak > 0 && <p className="streakline">🔥 {streak}-day streak{best > streak ? ` · best ${best}` : ""}</p>}
         <div className="clue">
           <div className="cat">Today's topic: <b>{word.category}</b></div>
@@ -311,7 +324,12 @@ export default function Hurdle() {
             <h2>{status === "won" ? "Got it 🏇" : "So close"}</h2>
             <p>{status === "won" ? `Solved in ${guesses.length}/${MAX_GUESSES}.` : <>Today's word was <span className="ans">{answer}</span>.</>} {streak > 0 ? <>You're on a <b className="ans">🔥 {streak}-day streak</b> — don't break it tomorrow.</> : "Come back tomorrow for a new one."}</p>
             <button className="btn" onClick={share}>{copied ? "Copied!" : "Share result 📲"}</button>
-            <div className="upsell"><b>1,800+ players</b> already get the daily NAP from Horse Racing Oracle. <a href="https://horseracingoracleai.com/" target="_blank" rel="noopener">Get today's free pick →</a></div>
+            <div className="upsell">
+              {rec7 && rec7.tips > 0 && rec7.pl_points > 0
+                ? <><b>+{rec7.pl_points} pts</b> this week at level stakes across {rec7.tips} published tips. </>
+                : <>Up to 5 AI-modelled tips a day, every result published — losers included. </>}
+              <a href="/record">Check the record</a> · <a href="https://horseracingoracleai.com/?utm_source=hurdle&utm_medium=result_card" target="_blank" rel="noopener">Get today's tips →</a>
+            </div>
             {!joined ? (
               <div className="join">
                 <input type="email" inputMode="email" placeholder="you@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />

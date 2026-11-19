@@ -161,7 +161,7 @@ export async function loadTips(limit = 60) {
   if (!hasSupabase) return [];
   const { data, error } = await supabase
     .from("tips")
-    .select("tip_date, horse, course, race_time, odds, result")
+    .select("id, tip_date, horse, course, race_time, odds, result")
     .order("tip_date", { ascending: false })
     .limit(limit);
   return error ? [] : data || [];
@@ -183,8 +183,8 @@ export async function saveTip(date, horse, course, time, odds, oddsDecimal) {
   return { ok: !error, error: error?.message };
 }
 
-// Admin: settle a tip ('won' | 'placed' | 'lost' | 'void').
-export async function settleTip(date, result) {
-  const { error } = await supabase.rpc("settle_tip", { p_date: date, p_result: result });
+// Admin: settle a tip by id ('won' | 'placed' | 'lost' | 'void').
+export async function settleTip(id, result) {
+  const { error } = await supabase.rpc("settle_tip", { p_id: id, p_result: result });
   return { ok: !error, error: error?.message };
 }

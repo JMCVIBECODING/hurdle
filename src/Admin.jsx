@@ -42,16 +42,16 @@ export default function Admin() {
     const n = Number((s || "").trim());
     return n > 1 ? n : null;
   }
-  async function refreshTips() { setTipList(await loadTips(14)); }
+  async function refreshTips() { setTipList(await loadTips(25)); }
   async function saveTipRow() {
     if (!tipHorse.trim()) { setTipMsg("Need a horse name."); return; }
     const r = await saveTip(tipDate, tipHorse.trim(), tipCourse.trim(), tipTime.trim(), tipOdds.trim(), oddsToDecimal(tipOdds));
     setTipMsg(r.ok ? `Saved: ${tipHorse.trim()} (${tipDate}) — now live on /record.` : "Save failed: " + r.error);
     if (r.ok) { setTipHorse(""); setTipCourse(""); setTipTime(""); setTipOdds(""); refreshTips(); }
   }
-  async function settleTipRow(date, result) {
-    const r = await settleTip(date, result);
-    setTipMsg(r.ok ? `${date} settled: ${result}.` : "Settle failed: " + r.error);
+  async function settleTipRow(id, result) {
+    const r = await settleTip(id, result);
+    setTipMsg(r.ok ? `Settled: ${result}.` : "Settle failed: " + r.error);
     if (r.ok) refreshTips();
   }
 
@@ -272,7 +272,7 @@ export default function Admin() {
 
       <div style={S.card}>
         <h2 style={{ ...S.h, fontSize: 16, color: "#f2b705" }}>HRO · NAP ledger</h2>
-        <p style={{ fontSize: 12, opacity: .8 }}>Enter the daily NAP, then settle it after the race. Everything here is PUBLIC at hurdlegame.app/record — losers stay on the board, that's the point.</p>
+        <p style={{ fontSize: 12, opacity: .8 }}>Enter each day's tips (up to 5), settle each after its race. Everything here is PUBLIC at hurdlegame.app/record — losers stay on the board, that's the point.</p>
         <input style={S.input} type="date" value={tipDate} onChange={(e) => setTipDate(e.target.value)} />
         <input style={S.input} placeholder="Horse (e.g. Constitution Hill)" value={tipHorse} onChange={(e) => setTipHorse(e.target.value)} />
         <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
@@ -280,15 +280,15 @@ export default function Admin() {
           <input style={{ ...S.input, marginBottom: 0, width: 80, flex: "none" }} placeholder="Time" value={tipTime} onChange={(e) => setTipTime(e.target.value)} />
           <input style={{ ...S.input, marginBottom: 0, width: 80, flex: "none" }} placeholder="Odds 5/2" value={tipOdds} onChange={(e) => setTipOdds(e.target.value)} />
         </div>
-        <button style={S.btn} onClick={saveTipRow}>Save NAP</button>
+        <button style={S.btn} onClick={saveTipRow}>Save tip</button>
         {tipMsg && <p style={{ color: "#f2b705", fontSize: 13, marginTop: 8 }}>{tipMsg}</p>}
         {tipList.map((t) => (
-          <div key={t.tip_date} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid rgba(244,236,216,.12)", fontSize: 13 }}>
+          <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid rgba(244,236,216,.12)", fontSize: 13 }}>
             <span style={{ opacity: .6, width: 78 }}>{t.tip_date}</span>
             <span style={{ flex: 1 }}>{t.horse} <span style={{ opacity: .5 }}>{t.odds || ""}</span></span>
             {t.result === "pending" ? (
               ["won", "placed", "lost", "void"].map((r) => (
-                <button key={r} style={{ ...S.btn, ...S.ghost, padding: "4px 8px", fontSize: 11 }} onClick={() => settleTipRow(t.tip_date, r)}>{r}</button>
+                <button key={r} style={{ ...S.btn, ...S.ghost, padding: "4px 8px", fontSize: 11 }} onClick={() => settleTipRow(t.id, r)}>{r}</button>
               ))
             ) : <span style={{ color: t.result === "won" ? "#7dc87d" : t.result === "lost" ? "#d98a8a" : "#f2b705", fontWeight: 700, textTransform: "uppercase", fontSize: 11 }}>{t.result}</span>}
           </div>
