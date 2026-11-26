@@ -155,11 +155,11 @@ export default function Quiz() {
               <>
                 <div className="bfcm">
                   <span className="bftag">Black Friday</span>
-                  <b>First month: £5</b> <s>£17</s>
-                  <p>The full daily card, every tip, for a fiver. Ends Monday night — the only discount we run all year.</p>
+                  <b>3 months: £5</b> <s>£51</s>
+                  <p>The full daily card, every tip, for three months — for a fiver. Ends Monday night, the only discount we run all year.</p>
                 </div>
                 <a className="cta" href="https://horseracingoracleai.com/offer?utm_source=quiz&utm_medium=results&utm_campaign=bfcm26">
-                  Claim the £5 first month →
+                  Claim 3 months for £5 →
                 </a>
               </>
             ) : (
