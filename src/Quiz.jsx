@@ -45,7 +45,11 @@ const PROFILES = {
   system: ["The Method Punter", "Rare breed. The question is whether the method holds up."],
 };
 
+// BFCM offer window: shows until the end of Cyber Monday, then vanishes on its own.
+const BFCM_ENDS = Date.parse("2026-12-01T00:00:00Z");
+
 export default function Quiz() {
+  const bfcmLive = Date.now() < BFCM_ENDS;
   const [step, setStep] = useState(0); // 0..2 questions, 3 email, 4 result
   const [answers, setAnswers] = useState({});
   const [email, setEmail] = useState("");
@@ -93,6 +97,11 @@ export default function Quiz() {
         .qz input{flex:1;min-width:0;padding:14px;border-radius:11px;border:0;font-size:15px;}
         .qz .go{background:#f2b705;color:#1a1400;border:0;border-radius:11px;padding:0 20px;font-family:'Oswald';font-weight:600;text-transform:uppercase;font-size:14px;cursor:pointer;}
         .qz .go:disabled{opacity:.4;}
+        .qz .bfcm{background:rgba(242,183,5,.1);border:1px solid rgba(242,183,5,.4);border-radius:12px;padding:14px;margin-top:14px;font-size:15px;}
+        .qz .bfcm .bftag{display:inline-block;background:#f2b705;color:#1a1400;font-family:'Oswald';font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;border-radius:5px;padding:3px 8px;margin-bottom:7px;}
+        .qz .bfcm b{color:#f2b705;font-size:18px;}
+        .qz .bfcm s{opacity:.5;margin-left:6px;}
+        .qz .bfcm p{font-size:12.5px;opacity:.8;margin:7px 0 0;line-height:1.45;}
         .qz .profname{font-family:'Oswald';font-size:28px;color:#f2b705;text-transform:uppercase;margin:4px 0 8px;}
         .qz .cta{display:block;text-align:center;background:#f2b705;color:#1a1400;border-radius:11px;padding:15px;font-family:'Oswald';font-weight:600;text-transform:uppercase;font-size:15px;text-decoration:none;margin-top:16px;}
         .qz .small{font-size:11px;opacity:.5;margin-top:12px;line-height:1.5;}
@@ -142,9 +151,22 @@ export default function Quiz() {
               {" "}Our AI model studies every race, every morning — form, going, trainer and jockey patterns — then
               publishes <b>a short card of selections each day — never a flood</b>. Every pick stays on the record, losers included.
             </p>
-            <a className="cta" href="https://horseracingoracleai.com/?utm_source=quiz&utm_medium=results" >
-              See the model &amp; today's tips →
-            </a>
+            {bfcmLive ? (
+              <>
+                <div className="bfcm">
+                  <span className="bftag">Black Friday</span>
+                  <b>First month: £5</b> <s>£17</s>
+                  <p>The full daily card, every tip, for a fiver. Ends Monday night — the only discount we run all year.</p>
+                </div>
+                <a className="cta" href="https://horseracingoracleai.com/?utm_source=quiz&utm_medium=results&utm_campaign=bfcm26">
+                  Claim the £5 first month →
+                </a>
+              </>
+            ) : (
+              <a className="cta" href="https://horseracingoracleai.com/?utm_source=quiz&utm_medium=results">
+                See the model &amp; today's tips →
+              </a>
+            )}
             <a className="cta" style={{ background: "rgba(244,236,216,.1)", color: "#f4ecd8" }} href="/record">
               Check our full track record (losers included)
             </a>
