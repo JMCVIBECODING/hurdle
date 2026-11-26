@@ -158,7 +158,7 @@ export default function Quiz() {
                   <b>First month: £5</b> <s>£17</s>
                   <p>The full daily card, every tip, for a fiver. Ends Monday night — the only discount we run all year.</p>
                 </div>
-                <a className="cta" href="https://horseracingoracleai.com/?utm_source=quiz&utm_medium=results&utm_campaign=bfcm26">
+                <a className="cta" href="https://horseracingoracleai.com/offer?utm_source=quiz&utm_medium=results&utm_campaign=bfcm26">
                   Claim the £5 first month →
                 </a>
               </>
