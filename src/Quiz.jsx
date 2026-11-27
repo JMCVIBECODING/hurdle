@@ -181,9 +181,6 @@ export default function Quiz() {
                 See the model &amp; today's tips →
               </a>
             )}
-            <a className="cta" style={{ background: "rgba(244,236,216,.1)", color: "#f4ecd8" }} href="/record">
-              Check our full track record (losers included)
-            </a>
             <p className="small">Your first tips email lands tomorrow morning.</p>
           </>
         )}
