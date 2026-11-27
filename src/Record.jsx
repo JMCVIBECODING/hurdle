@@ -39,6 +39,10 @@ export default function Record() {
         .rec .b{font-family:'Oswald';font-size:10.5px;letter-spacing:.08em;padding:4px 9px;border-radius:6px;flex-shrink:0;}
         .rec .cta{display:block;text-align:center;background:#f2b705;color:#1a1400;border-radius:11px;padding:15px;font-family:'Oswald';font-weight:600;text-transform:uppercase;font-size:15px;text-decoration:none;margin:14px 0 6px;width:100%;max-width:480px;}
         .rec .empty{opacity:.6;font-size:14px;padding:30px 0;text-align:center;}
+        .rec .open{background:#123029;border:1px solid rgba(242,183,5,.35);border-radius:14px;padding:22px;text-align:center;margin:8px 0 4px;}
+        .rec .openk{font-family:'Oswald';font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#f2b705;margin:0 0 10px;}
+        .rec .opent{font-size:14.5px;line-height:1.55;margin:0 0 10px;}
+        .rec .opend{font-size:12.5px;opacity:.6;margin:0;}
         .rec .foot{font-size:10.5px;opacity:.45;padding:18px;text-align:center;margin-top:auto;line-height:1.6;}
         .rec .foot a{color:inherit;}
       `}</style>
@@ -49,7 +53,7 @@ export default function Record() {
 
       {rec && rec.tips > 0 && (
         <div className="stats">
-          <div className="stat"><b>{rec.tips}</b><span>NAPs · {rec.days}d</span></div>
+          <div className="stat"><b>{rec.tips}</b><span>Tips · {rec.days}d</span></div>
           <div className="stat"><b>{rec.strike_pct}%</b><span>Strike rate</span></div>
           <div className="stat"><b>{rec.pl_points > 0 ? "+" : ""}{rec.pl_points}</b><span>P/L (1pt stakes)</span></div>
         </div>
@@ -57,7 +61,13 @@ export default function Record() {
 
       <div className="list">
         {tips === null && <p className="empty">Loading the ledger…</p>}
-        {tips && tips.length === 0 && <p className="empty">The public ledger starts this week. Every pick from here on stays on the board.</p>}
+        {tips && tips.length === 0 && (
+          <div className="open">
+            <p className="openk">Ledger open</p>
+            <p className="opent">Every pick goes on this board from day one — winners, losers, the lot. No deleting, no editing, no cherry-picking.</p>
+            <p className="opend">The board fills daily. Check back and hold us to it.</p>
+          </div>
+        )}
         {tips && tips.map((t) => {
           const [label, color] = BADGE[t.result] || BADGE.pending;
           return (
@@ -70,7 +80,7 @@ export default function Record() {
         })}
       </div>
 
-      <a className="cta" href="https://horseracingoracleai.com/?utm_source=record">Get tomorrow's NAP →</a>
+      <a className="cta" href="https://horseracingoracleai.com/?utm_source=record">Get today's free tips →</a>
 
       <div className="foot">
         18+ · <a href="https://www.gambleaware.org" target="_blank" rel="noopener">GambleAware.org</a> · Past performance does not guarantee future results · <a href="/privacy">Privacy</a>

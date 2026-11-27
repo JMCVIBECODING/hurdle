@@ -97,12 +97,19 @@ export default function Quiz() {
         .qz input{flex:1;min-width:0;padding:14px;border-radius:11px;border:0;font-size:15px;}
         .qz .go{background:#f2b705;color:#1a1400;border:0;border-radius:11px;padding:0 20px;font-family:'Oswald';font-weight:600;text-transform:uppercase;font-size:14px;cursor:pointer;}
         .qz .go:disabled{opacity:.4;}
-        .qz .bfcm{background:rgba(242,183,5,.1);border:1px solid rgba(242,183,5,.4);border-radius:12px;padding:14px;margin-top:14px;font-size:15px;}
-        .qz .bfcm .bftag{display:inline-block;background:#f2b705;color:#1a1400;font-family:'Oswald';font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;border-radius:5px;padding:3px 8px;margin-bottom:7px;}
-        .qz .bfcm b{color:#f2b705;font-size:18px;}
-        .qz .bfcm s{opacity:.5;margin-left:6px;}
-        .qz .bfcm p{font-size:12.5px;opacity:.8;margin:7px 0 0;line-height:1.45;}
-        .qz .profname{font-family:'Oswald';font-size:28px;color:#f2b705;text-transform:uppercase;margin:4px 0 8px;}
+        .qz .bfcm{background:linear-gradient(160deg,rgba(242,183,5,.14),rgba(242,183,5,.05));border:1px solid rgba(242,183,5,.45);border-radius:14px;padding:18px;margin-top:16px;}
+        .qz .bfcm .bftag{display:inline-block;background:#f2b705;color:#1a1400;font-family:'Oswald';font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;border-radius:5px;padding:4px 10px;margin-bottom:12px;}
+        .qz .price{display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+        .qz .big5{font-family:'Oswald';font-weight:700;font-size:54px;color:#f2b705;line-height:1;}
+        .qz .pmeta{font-size:13.5px;line-height:1.45;font-weight:600;}
+        .qz .pmeta s{opacity:.5;font-weight:400;}
+        .qz .bfcm p{font-size:12.5px;opacity:.75;margin:0;line-height:1.5;}
+        .qz .profname{font-family:'Oswald';font-size:34px;color:#f2b705;text-transform:uppercase;margin:4px 0 6px;line-height:1.1;}
+        .qz .profsub{font-size:15px;font-weight:600;margin:0 0 14px;line-height:1.45;}
+        .qz .divider{height:1px;background:rgba(244,236,216,.14);margin:0 0 14px;}
+        .qz .how{margin:4px 0 2px;}
+        .qz .hrow{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;margin-bottom:8px;line-height:1.4;}
+        .qz .tick{color:#f2b705;font-weight:700;flex-shrink:0;}
         .qz .cta{display:block;text-align:center;background:#f2b705;color:#1a1400;border-radius:11px;padding:15px;font-family:'Oswald';font-weight:600;text-transform:uppercase;font-size:15px;text-decoration:none;margin-top:16px;}
         .qz .small{font-size:11px;opacity:.5;margin-top:12px;line-height:1.5;}
         .qz .foot{font-size:10.5px;opacity:.45;padding:18px;text-align:center;margin-top:auto;line-height:1.6;}
@@ -143,20 +150,27 @@ export default function Quiz() {
           <>
             <p className="kicker">Your punter profile</p>
             <div className="profname">{profile[0]}</div>
-            <p className="sub">{profile[1]}</p>
+            <p className="profsub">{profile[1]}</p>
+            <div className="divider" />
             <p className="sub">
               {answers.up_or_down === "up"
                 ? "You say you're up and can prove it. Respect. See if the model beats your edge."
                 : "You're not losing because you're stupid. You're losing because you're playing machines with a gut."}
-              {" "}Our AI model studies every race, every morning — form, going, trainer and jockey patterns — then
-              publishes <b>a short card of selections each day — never a flood</b>. Every pick stays on the record, losers included.
             </p>
+            <div className="how">
+              <div className="hrow"><span className="tick">✓</span>AI model studies every race, every morning</div>
+              <div className="hrow"><span className="tick">✓</span>A short card of selections daily, never a flood</div>
+              <div className="hrow"><span className="tick">✓</span>Every pick stays on the record, losers included</div>
+            </div>
             {bfcmLive ? (
               <>
                 <div className="bfcm">
-                  <span className="bftag">Black Friday</span>
-                  <b>3 months: £5</b> <s>£51</s>
-                  <p>The full daily card, every tip, for three months — for a fiver. Ends Monday night, the only discount we run all year.</p>
+                  <span className="bftag">Black Friday · ends Monday night</span>
+                  <div className="price">
+                    <span className="big5">£5</span>
+                    <span className="pmeta">3 full months<br /><s>£51</s> · then £17/mo</span>
+                  </div>
+                  <p>Every daily tip for the whole winter jumps season. The only discount we run all year.</p>
                 </div>
                 <a className="cta" href="https://horseracingoracleai.com/offer?utm_source=quiz&utm_medium=results&utm_campaign=bfcm26">
                   Claim 3 months for £5 →
