@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { subscribeNewsletter, logSignup } from "./lib/api";
+import { subscribeNewsletter, logSignup, logSmsConsent } from "./lib/api";
 import { trackBoth } from "./lib/analytics";
 
 // "What kind of punter are you?" — 3 questions, email gate, profile result.
@@ -45,6 +45,9 @@ const PROFILES = {
   system: ["The Method Punter", "Rare breed. The question is whether the method holds up."],
 };
 
+// Exact SMS consent wording shown to the user; stored with each consent (PECR).
+const SMS_CONSENT_TEXT = "Yes, text me tips and offers from Horse Racing Oracle. UK mobiles. Reply STOP any time.";
+
 // BFCM offer window: shows until the end of Cyber Monday, then vanishes on its own.
 const BFCM_ENDS = Date.parse("2026-12-01T00:00:00Z");
 
@@ -53,6 +56,8 @@ export default function Quiz() {
   const [step, setStep] = useState(0); // 0..2 questions, 3 email, 4 result
   const [answers, setAnswers] = useState({});
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [smsOk, setSmsOk] = useState(false);
   const [busy, setBusy] = useState(false);
 
   function pick(key, val) {
@@ -73,6 +78,9 @@ export default function Quiz() {
     trackBoth("CompleteRegistration", { email, content_name: "quiz" });
     trackBoth("Lead", { email, content_name: "quiz" });
     logSignup(email, "quiz");
+    if (smsOk && phone.replace(/\D/g, "").length >= 10) {
+      logSmsConsent(email, phone, SMS_CONSENT_TEXT, "quiz");
+    }
     setBusy(false);
     setStep(4);
   }
@@ -97,6 +105,9 @@ export default function Quiz() {
         .qz input{flex:1;min-width:0;padding:14px;border-radius:11px;border:0;font-size:15px;}
         .qz .go{background:#f2b705;color:#1a1400;border:0;border-radius:11px;padding:0 20px;font-family:'Oswald';font-weight:600;text-transform:uppercase;font-size:14px;cursor:pointer;}
         .qz .go:disabled{opacity:.4;}
+        .qz .ph{width:100%;margin-top:9px;padding:14px;border-radius:11px;border:0;font-size:15px;}
+        .qz .chk{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;line-height:1.45;margin-top:11px;cursor:pointer;opacity:.85;}
+        .qz .chk input{margin-top:2px;accent-color:#f2b705;}
         .qz .bfcm{background:linear-gradient(160deg,rgba(242,183,5,.14),rgba(242,183,5,.05));border:1px solid rgba(242,183,5,.45);border-radius:14px;padding:18px;margin-top:16px;}
         .qz .bfcm .bftag{display:inline-block;background:#f2b705;color:#1a1400;font-family:'Oswald';font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;border-radius:5px;padding:4px 10px;margin-bottom:12px;}
         .qz .price{display:flex;align-items:center;gap:14px;margin-bottom:10px;}
@@ -142,7 +153,13 @@ export default function Quiz() {
                 {busy ? "..." : "Show me"}
               </button>
             </div>
-            <p className="small">Free. Unsubscribe anytime. 18+ only.</p>
+            <input className="ph" type="tel" inputMode="tel" placeholder="Mobile (optional, for text tips)"
+                   value={phone} onChange={(e) => setPhone(e.target.value)} />
+            <label className="chk">
+              <input type="checkbox" checked={smsOk} onChange={(e) => setSmsOk(e.target.checked)} />
+              <span>{SMS_CONSENT_TEXT}</span>
+            </label>
+            <p className="small">By continuing you agree to receive daily tips and offers from Horse Racing Oracle by email. Free. Unsubscribe anytime. 18+ only.</p>
           </>
         )}
 

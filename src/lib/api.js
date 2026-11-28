@@ -132,6 +132,16 @@ export function logSignup(email, source) {
     .then(() => {}, () => {});
 }
 
+// Explicit SMS marketing consent (PECR): stores phone + the exact wording
+// shown + timestamp, via SECURITY DEFINER fn. Fire and forget.
+export function logSmsConsent(email, phone, consentText, source) {
+  if (!hasSupabase) return;
+  supabase.rpc("log_sms_consent", {
+    p_device: deviceId(), p_email: email, p_phone: phone,
+    p_consent_text: consentText, p_source: source,
+  }).then(() => {}, () => {});
+}
+
 // Live player count for social proof (real, via SECURITY DEFINER count fn).
 export async function loadPlayerCount() {
   if (!hasSupabase) return 0;
