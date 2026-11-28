@@ -184,13 +184,13 @@ export default function Quiz() {
                 <div className="bfcm">
                   <span className="bftag">Black Friday · ends Monday night</span>
                   <div className="price">
-                    <span className="big5">£5</span>
-                    <span className="pmeta">3 full months<br /><s>£51</s> · then £17/mo</span>
+                    <span className="big5">£5<span style={{fontSize:22}}>/mo</span></span>
+                    <span className="pmeta">first 3 months<br /><s>£17/mo</s> · then £17/mo</span>
                   </div>
-                  <p>Every daily tip for the whole winter jumps season. The only discount we run all year.</p>
+                  <p>5 tips a day, every racing morning. Cancel any time. The only discount we run all year.</p>
                 </div>
                 <a className="cta" href="https://horseracingoracleai.com/offer?utm_source=quiz&utm_medium=results&utm_campaign=bfcm26">
-                  Claim 3 months for £5 →
+                  Get 5 tips a day for £5 →
                 </a>
               </>
             ) : (
